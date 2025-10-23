@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="toast show" style="padding:20px;width:100%;">
+    <h2>{{ job.job_title }}</h2>
+    <p><strong>Company:</strong> {{ job.company }}</p>
+    <p><strong>Location:</strong> {{ job.location }}</p>
+    <p><strong>Employment Type:</strong> {{ job.employment_type }}</p>
+    <p><strong>Experience Level:</strong> {{ job.experience_level }}</p>
+    <p><strong>Reports To:</strong> {{ job.reports_to }}</p>
+    <p><strong>Salary Range:</strong> {{ job.salary_range }}</p>
+    <p><strong>Application Deadline:</strong> {{ job.application_deadline }}</p>
+    <p><strong>Skills Required:</strong> {{ job.skills }}</p>
+   
+    <div class="border p-3">{{ job.details|safe }}</div>  <!--Display Markdown as HTML -->
+</div>
+{% endblock %}

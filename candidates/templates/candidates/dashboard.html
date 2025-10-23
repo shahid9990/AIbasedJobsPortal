@@ -1,0 +1,976 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://bootswatch.com/5/lux/bootstrap.min.css">
+    <title>Candidate Dashboard</title>
+	<style>
+	/* Pricing Section */
+.pricing-section {
+    background: #f4f4f4;
+    text-align: center;
+    padding: 50px;
+}
+
+.pricing-container {
+    max-width: 600px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.pricing-container h2 {
+    color: #2575fc;
+    font-size: 28px;
+    margin-bottom: 15px;
+}
+
+.pricing-container p {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.pricing-container .btn-primary {
+    background: linear-gradient(to right, #2575fc, #6a11cb);
+    border: none;
+    padding: 10px 20px;
+    font-size: 18px;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.pricing-container .btn-primary:hover {
+    background: linear-gradient(to right, #6a11cb, #2575fc);
+}
+
+/* Pricing Modal */
+.modal-content {
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    background: #55595c;
+    color: white;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.modal-title {
+    font-size: 22px;
+}
+
+/* Pricing Grid */
+.pricing-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* Pricing Cards */
+.pricing-card {
+    background: white;
+    padding: 20px;
+    width: 280px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease-in-out;
+}
+
+.pricing-card img {
+    width: 60px;
+    margin-bottom: 10px;
+}
+
+.pricing-card h3 {
+    font-size: 20px;
+    color: #333;
+}
+
+.pricing-card .price {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2575fc;
+    margin: 10px 0;
+}
+
+.pricing-card ul {
+    list-style: none;
+    padding: 0;
+    text-align: center;
+    font-size: 16px;
+    color: #555;
+}
+
+.pricing-card ul li {
+    margin: 5px 0;
+}
+
+/* Hover Effect */
+.pricing-card:hover {
+    transform: scale(1.05);
+}
+
+.modal {
+    --bs-modal-zindex: 1055;
+    --bs-modal-width: 80%;
+	
+	}
+	
+	.table {
+    table-layout: auto;  /* Allows columns to resize based on content */
+    width: 100%;  /* Ensures table fits within the page */
+}
+
+.table-responsive {
+    overflow-x: auto; /* Enables horizontal scrolling */
+}
+
+
+.skill-badge {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+.skill-badge:hover {
+    transform: scale(1.1);
+}
+
+	</style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">candidate panel</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarColor02">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link active" href="{% url 'home' %}">Home
+            <span class="visually-hidden">(current)</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#modalone" data-bs-toggle="modal" data-bs-target="#modalone">Features</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#pricingModal">Pricing</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#aboutModal">About</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+          <div class="dropdown-menu">
+		  
+            
+            <a class="dropdown-item" href="{% url 'candidate_profile' %}">Profile</a>
+			<a class="dropdown-item" href="{% url 'resume_builder' %}">Resume Builder</a>
+			<a class="dropdown-item" href="{% url 'candidate_password' %}">Change Password</a>
+            <a class="dropdown-item" href="#">Subscriptions</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{% url 'candidate_logout' %}">Logout</a>
+          </div>
+        </li>
+      </ul>
+      <form class="d-flex">
+        <input class="form-control me-sm-2" type="search" placeholder="Search">
+        <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+      </form>
+    </div>
+  </div>
+</nav>
+    <div class="container mt-4">
+    
+	
+
+
+    <!--Job Postings Section -->
+    <div class="card mt-4">
+        <div class="card-header bg-success text-white">
+            <h5>Latest Job Postings</h5>
+        </div>
+        <div class="card-body">
+            <ul id="job-list" class="list-group" style="list-style-type:none;">
+                <!-- Job postings will be inserted here -->
+            </ul>
+        </div>
+    </div>
+	
+	<!-- Skills Panel -->
+	<div class="card mt-4">
+        <div class="card-header bg-success text-white">
+            <h5>Your Skills</h5>
+        </div>
+        <div class="card-body">
+            <div id="skills-container" class="mt-3"></div>
+        </div>
+    </div>
+	
+	<!--Blog Posts Section -->
+    <div class="card mt-4">
+        <div class="card-header bg-primary text-white">
+            <h5>Latest Blog Posts</h5>
+        </div>
+        <div class="card-body">
+            <ul id="blog-list" class="list-group" style="list-style-type:none;">
+                <!-- Blog posts will be inserted here -->
+            </ul>
+        </div>
+    </div>
+
+    
+</div>
+
+<!--Blog Post Modal -->
+<div class="modal fade" id="blogModal" tabindex="-1" aria-labelledby="blogModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="blogModalLabel">Blog Post</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h4 id="blog-title"></h4>
+                <div id="blog-content"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Job Post Modal -->
+<div class="modal fade" id="jobModal" tabindex="-1" aria-labelledby="jobModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="jobModalLabel">Job Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h4 id="job-title"></h4>
+                <p><strong>Location:</strong> <span id="job-location"></span></p>
+                <p><strong>Company:</strong> <span id="job-company"></span></p>
+                <p><strong>Employment Type:</strong> <span id="job-type"></span></p>
+                <p><strong>Experience Level:</strong> <span id="job-experience"></span></p>
+                <p><strong>Reports To:</strong> <span id="job-reports-to"></span></p>
+                <p><strong>Salary Range:</strong> <span id="job-salary"></span></p>
+                <p><strong>Application Deadline:</strong> <span id="job-deadline"></span></p>
+                <p><strong>Skills:</strong> <span id="job-skills"></span></p>
+                <div id="job-details"></div>
+				<button id="take-test-button" class="btn btn-primary mt-3" style="display: none;">
+				Take Test
+				</button>
+				<div id="alertmsg" style="margin:0 auto; width:100%;padding:10px; display:none;"></div>
+
+            </div>
+        </div>
+    </div>
+</div>
+	
+	
+	
+	
+<div class="modal" id="modalone">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" style="color:white;">Features of Jobs Club: AI Recruitment & Staffing Web Application</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true"></span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <section class="features-container">
+        
+        <div class="feature-box">
+            
+            <h2>Candidate Features</h2>
+            <ul>
+			<li>AI-Powered Job Matching – Get personalized job recommendations based on skills and experience.</li>
+<li>Easy Job Search & Filters – Find jobs using category, location, and salary filters.</li>
+<li>One-Click Applications – Apply for jobs quickly with a single click.</li>
+<li>Resume & Bio Generator – AI-generated professional resumes and bios.</li>
+<li>Online Skill Tests – Attempt AI-generated skill assessments for job applications.</li>
+<li>Application Tracking – View job application statuses in real time.</li>
+</ul>
+        </div>
+
+        <div class="feature-box">
+            
+            <h2>Advanced Employer Tools</h2>
+			<ul>
+            <li>AI-Based Candidate Shortlisting – Intelligent filtering of applicants based on skills and job requirements.</li>
+<li>Automated Job Posting – AI-generated, optimized job descriptions.</li>
+<li>Customizable Job Listings – Define job categories, locations, and salary ranges.</li>
+<li>Application Management – View, shortlist, and manage candidate applications.</li>
+<li>Interview Scheduling – Set up interview dates and notify candidates automatically.</li>
+<li>Contract Generation – AI-powered employment contract drafting.</li>
+</ul>
+        </div>
+
+        <div class="feature-box">
+            
+            <h2>Admin Dashboard</h2>
+			<ul>
+            <li>User & Job Vacancy Management – Approve/reject job postings and user registrations.</li>
+<li>Candidate Bio Approval – Ensure all bios meet professional standards.</li>
+<li>AI-Test Management – Approve, reject, and generate skill assessments.</li>
+<li>Security & Compliance – Monitor platform security and ensure data privacy compliance.</li>
+<li>Advanced Reports & Analytics – Track recruitment trends, user engagement, and hiring success.</li>
+			</ul>
+        </div>
+
+        <div class="feature-box">
+           
+            <h2>AI-Based Automation</h2>
+			<ul>
+            <li>AI-Based Resume Parsing – Automatically extract key details from uploaded resumes.</li>
+<li>AI-Generated Blog Posts – Create engaging blog content for recruitment marketing.</li>
+<li>Smart Email Templates – Auto-generate emails for interview invites and rejections.</li>
+<li>Automated Test Evaluation – AI-powered assessments with instant scoring.</li>
+</ul>
+        </div>
+
+        <div class="feature-box">
+            
+            <h2>Security & Compliance</h2>
+			<ul>
+            <li>Role-Based Access Control (RBAC) – Different access levels for candidates, employers, and admins.</li>
+<li>SSL Encryption – Ensures secure data transfer and storage.</li>
+<li>GDPR & Data Compliance – Protects user data with industry-standard security practices.</li>
+			</ul>
+        </div>
+
+        <div class="feature-box">
+            
+            <h2>Intuitive UI</h2>
+			<ul>
+			<li>Responsive Design – Works seamlessly on desktop, tablet, and mobile.</li>
+<li>Dark & Light Mode – Switch between themes for a comfortable viewing experience.</li>
+<li>Interactive Dashboards – Candidate, Employer, and Admin dashboards for an intuitive workflow.</li>
+<li>Beautiful UI Animations – Smooth transitions, hover effects, and notifications.</li>
+            
+			</ul>
+        </div>
+
+    </section>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>	
+
+
+<div class="modal fade" id="aboutModal" tabindex="-1" aria-labelledby="aboutModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="aboutModalLabel" style="color:white;">About Jobs Club</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h3>Who We Are</h3>
+                    <p>Jobs Club is a cutting-edge AI-powered recruitment and staffing platform designed to revolutionize hiring processes. We help employers find the best talent and empower candidates with smart job-matching technology.</p>
+
+                    <h3>Our Mission</h3>
+                    <p>To create an innovative and efficient recruitment ecosystem that connects talented professionals with top employers through AI-driven technology.</p>
+
+                    <h3>Why Choose Us?</h3>
+                    <ul>
+                        <li>AI-Powered Job Matching – Intelligent recommendations tailored for each user.</li>
+                        <li>Smart Hiring – AI-driven resume parsing, job descriptions, and candidate filtering.</li>
+                        <li>Seamless User Experience – Intuitive dashboards for candidates, employers, and administrators.</li>
+                        <li>Robust Security & Compliance – GDPR-compliant and SSL-encrypted.</li>
+                    </ul>
+
+                    <h3>Our Impact</h3>
+                    <p>Since our launch, Jobs Club has helped thousands of job seekers land their dream jobs and enabled employers to streamline their hiring process efficiently.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+	
+	
+	<!-- Pricing Modal -->
+    <div class="modal fade" id="pricingModal" tabindex="-1" aria-labelledby="pricingModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" style="color:white;">
+                    <h5 class="modal-title" id="pricingModalLabel" style="color:white;">Our Pricing Plans</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="pricing-grid">
+                        <!-- Basic Plan -->
+                        <div class="pricing-card basic-plan">
+                            
+                            <h3>Basic Plan</h3>
+                            <p class="price">$0 / Month</p>
+                            <ul>
+                                <li>✔ 10 Job Applications</li>
+                                <li>✔ AI Resume Generator</li>
+                                <li>✔ Standard Job Matching</li>
+                                <li>❌ Priority Support</li>
+								
+                            </ul>
+                            <button class="btn btn-outline-primary">Get Started</button>
+                        </div>
+
+                        <!-- Premium Plan -->
+                        <div class="pricing-card premium-plan">
+                            
+                            <h3>Premium Plan</h3>
+                            <p class="price">$29 / Month</p>
+                            <ul>
+                                <li>✔ Unlimited Applications</li>
+                                <li>✔ AI-Powered Job Matching</li>
+                                <li>✔ Priority Customer Support</li>
+                                <li>✔ Advanced Resume & Bio Generator</li>
+								<li>✔ Advanced Test Generator</li>
+                            </ul>
+                            <button class="btn btn-primary">Choose Plan</button>
+                        </div>
+
+                        <!-- Enterprise Plan -->
+                        <div class="pricing-card enterprise-plan">
+                            
+                            <h3>Enterprise Plan</h3>
+                            <p class="price">$99 / Month</p>
+                            <ul>
+                                <li>✔ All Premium Features</li>
+                                <li>✔ AI-Based Candidate Screening</li>
+                                <li>✔ Custom Hiring Dashboard</li>
+                                <li>✔ Dedicated Account Manager</li>
+								<li>✔ Interviews Manager</li>
+                            </ul>
+                            <button class="btn btn-dark">Contact Sales</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+	<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    loadBlogPosts();
+    loadJobPosts();
+	loadSkills();
+});
+
+function loadBlogPosts() {
+    fetch("/candidates/blog-posts/")
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            let blogList = document.getElementById("blog-list");
+            blogList.innerHTML = ""; 
+            data.blog_posts.forEach(post => {
+                let li = document.createElement("li");
+                li.classList.add( "alert", "alert-dismissible", "alert-success");
+                li.innerHTML = `<h3>${post.title}</h3><br>${marked.parse(post.outline)}`;
+                li.onclick = function() { viewBlogPost(post.id); };
+                blogList.appendChild(li);
+            });
+        }
+    });
+}
+
+function loadJobPosts() {
+    fetch("/candidates/job-posts/")
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            let jobList = document.getElementById("job-list");
+            jobList.innerHTML = ""; 
+			console.log(data.job_posts);
+            data.job_posts.forEach(job => {
+                let li = document.createElement("li");
+				const deadline = new Date(job.application_deadline);
+				const now = new Date();
+
+				if (deadline < now) {
+					li.classList.add( "alert", "alert-dismissible", "alert-danger");
+				} else {
+					li.classList.add( "alert", "alert-dismissible", "alert-success");
+				}
+                
+                li.innerHTML = `<strong>${job.job_title}</strong> at ${job.company} (${job.location}) in ${job.location} with a deadline of ${job.application_deadline}`;
+                li.onclick = function() { viewJobPost(job.id); };
+                jobList.appendChild(li);
+            });
+        }
+    });
+}
+
+function viewBlogPost(postId) {
+    fetch(`/candidates/view-blog/${postId}/`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            //document.getElementById("blog-title").innerText = data.title;
+            document.getElementById("blog-content").innerHTML = marked.parse(data.content);
+            new bootstrap.Modal(document.getElementById("blogModal")).show();
+        }
+    });
+}
+
+function viewJobPost(jobId) {
+    fetch(`/candidates/view-job/${jobId}/`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById("job-title").innerText = data.job_post.job_title;
+            document.getElementById("job-location").innerText = data.job_post.location;
+            document.getElementById("job-company").innerText = data.job_post.company;
+            document.getElementById("job-type").innerText = data.job_post.employment_type;
+            document.getElementById("job-experience").innerText = data.job_post.experience_level;
+            document.getElementById("job-reports-to").innerText = data.job_post.reports_to;
+            document.getElementById("job-salary").innerText = data.job_post.salary_range;
+            document.getElementById("job-deadline").innerText = data.job_post.application_deadline;
+            document.getElementById("job-skills").innerText = data.job_post.skills;
+            document.getElementById("job-details").innerHTML = marked.parse(data.job_post.details);
+
+            // Show/hide the Take Test button
+			const deadline = new Date(data.job_post.application_deadline);
+				const now = new Date();
+
+				
+            if (data.test_exists && deadline >= now) {
+				const takeTestButton = document.getElementById("take-test-button");
+				takeTestButton.style.display = 'block';
+				takeTestButton.setAttribute('data-job-id', jobId);
+				document.getElementById("alertmsg").style.display = 'none';
+    
+					
+				} else if(deadline < now){
+				document.getElementById("alertmsg").innerHTML = '<span class="alert alert-dismissible alert-danger" style="width:100%;">Deadline to Apply has Passed!</span>';
+				document.getElementById("take-test-button").style.display = 'none';
+				document.getElementById("alertmsg").style.display = 'block';
+				}else {
+					document.getElementById("take-test-button").style.display = 'none';
+					document.getElementById("alertmsg").innerHTML = '<span class="alert alert-dismissible alert-danger" style="width:100%;">No Test Associated with this Job Posting! You may attempt the skills tests to get inducted!</span>';
+					document.getElementById("alertmsg").style.display = 'block';
+					
+				}
+
+            new bootstrap.Modal(document.getElementById("jobModal")).show();
+        }
+    });
+}
+
+
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const takeTestButton = document.getElementById("take-test-button");
+    if (takeTestButton) {
+        takeTestButton.addEventListener('click', function () {
+            const jobId = this.getAttribute('data-job-id');
+            openTestWindow(jobId);
+        });
+    }
+});
+
+function openTestWindow(jobId) {
+    const testWindow = window.open('', '_blank', 'width=600,height=600');
+
+    if (!testWindow) {
+        alert('Popup blocked! Please enable popups for this site.');
+        return;
+    }
+
+    testWindow.document.write(`
+<html>
+<head>
+    <title>Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 20px; font-family: 'Segoe UI', sans-serif; }
+        #timer { font-size: 1.2rem; font-weight: bold; text-align: right; }
+        .question-card { margin-top: 20px; }
+        .option-group { margin-left: 15px; }
+        .option-group label { margin-left: 5px; }
+        .btn-next { margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="timer" class="text-end mb-3"></div>
+        <div id="question-container" class="question-card"></div>
+    </div>
+</body>
+</html>
+`);
+    testWindow.document.close();
+
+    fetch(`/candidates/get-test/${jobId}/`)
+        .then(response => response.json())
+        .then(data => {
+            if (!data.success) {
+                testWindow.document.body.innerHTML = `<p>${data.message}</p>`;
+                return;
+            }
+
+            const questions = JSON.parse(data.questions);
+            let currentQuestionIndex = 0;
+            const answers = [];
+            let countdownInterval;
+            let countdownTimeout;
+
+            testWindow.document.body.innerHTML = '<div class="alert-danger" style="width:100%;display:block;">Dear Candidate!<br> Please note that this window is focus protected and you are supposed to refrain from these:<br> 1. Minimizing the Window.<br> 2. Clicking outside the window <br>3. Trying to get help from any material/person.</div><div id="timer" style="margin:10px;font-weight:bold;float:right;"></div><div id="question-container" style="float:left;width:100%;"></div>';
+
+            testWindow.getCookie = function(name) {
+                let cookieValue = null;
+                if (testWindow.document.cookie && testWindow.document.cookie !== '') {
+                    const cookies = testWindow.document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            };
+
+            testWindow.renderQuestion = function () {
+                clearInterval(countdownInterval);
+                clearTimeout(countdownTimeout);
+
+                const q = questions[currentQuestionIndex];
+                const container = testWindow.document.getElementById('question-container');
+                let html = `
+    <div class="card shadow p-4">
+        <h5 class="card-title">Question ${currentQuestionIndex + 1} of ${questions.length}</h5>
+        <p class="card-text">${escapeHTML(q.question)}</p>
+        <div class="option-group">`;
+
+q.options.forEach((opt, idx) => {
+    html += `
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="option" id="opt${idx}" value="${escapeHTML(opt)}">
+            <label class="form-check-label" for="opt${idx}">
+                ${escapeHTML(opt)}
+            </label>
+        </div>`;
+});
+
+html += `
+        </div>
+        <button class="btn btn-primary btn-next" onclick="answerQuestion()">Next</button>
+    </div>`;
+
+                container.innerHTML = html;
+
+                startCountdown(90); // 90 seconds per question
+            };
+
+            function startCountdown(seconds) {
+                const timerDisplay = testWindow.document.getElementById('timer');
+                let remaining = seconds;
+
+                function updateTimer() {
+                    const minutes = Math.floor(remaining / 60);
+                    const sec = remaining % 60;
+                    timerDisplay.textContent = `Time left: ${minutes}:${sec < 10 ? '0' : ''}${sec}`;
+                    remaining--;
+
+                    if (remaining < 0) {
+                        clearInterval(countdownInterval);
+                    }
+                }
+
+                updateTimer();
+                countdownInterval = setInterval(updateTimer, 1000);
+
+                // Auto-progress to next question when time is up
+                countdownTimeout = setTimeout(() => {
+                    testWindow.answerQuestion(true);
+                }, seconds * 1000);
+            }
+
+            testWindow.answerQuestion = function (auto = false) {
+                clearInterval(countdownInterval);
+                clearTimeout(countdownTimeout);
+
+                const selected = testWindow.document.querySelector('input[name="option"]:checked');
+                let selectedAnswer = selected ? selected.value : "";
+
+                // If time runs out and no answer was selected, we still store empty
+                answers.push({
+                    question: questions[currentQuestionIndex].question,
+                    selected: selectedAnswer
+                });
+
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    testWindow.renderQuestion();
+                } else {
+                    testWindow.submitTest();
+                }
+            };
+
+            testWindow.submitTest = function () {
+                testWindow.document.body.innerHTML = "<p>Submitting your answers...</p>";
+
+                fetch('/candidates/submit-test/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': testWindow.getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        job_id: jobId,
+                        answers: answers
+                    })
+                })
+                .then(resp => resp.json())
+                .then(res => {
+                    testWindow.document.body.innerHTML = `
+    <div class="container mt-5 text-center">
+        <div class="alert alert-info">
+            <h4>${res.message || "Test submitted successfully!"}</h4>
+        </div>
+    </div>`;
+                })
+                .catch(error => {
+                    testWindow.document.body.innerHTML = "<p>There was an error submitting your test.</p>";
+                    console.error(error);
+                });
+            };
+
+            testWindow.renderQuestion();
+        })
+        .catch(err => {
+            testWindow.document.body.innerHTML = "<p>Failed to load test questions.</p>";
+            console.error(err);
+        });
+		
+		
+		
+		// Focus Restriction
+let blurCount = 0;
+
+testWindow.onblur = () => {
+    blurCount++;
+    setTimeout(() => {
+        if (testWindow.document.hasFocus()) return;
+
+        alert("You can't click outside this window or minimize it. The test window will now close.");
+        testWindow.close();
+    }, 300); // slight delay to check if blur is temporary
+};
+
+testWindow.onbeforeunload = () => {
+    if (blurCount > 0) {
+        alert("Test window was closed or lost focus.");
+    }
+};
+}
+
+
+
+    function loadSkills() {
+        fetch('/candidates/get-candidate-skills/')  // Adjust to your actual URL
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('skills-container');
+                if (!data.success) {
+                    container.innerHTML = `<p>Error: ${data.error}</p>`;
+                    return;
+                }
+
+                let html = '';
+                data.skills.forEach(item => {
+                    html += `<span class="badge bg-${item.badge} me-2 skill-badge" data-skill="${item.skill}">${item.skill} (${item.score}%)</span>`;
+                });
+                container.innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error loading skills: ', error);
+            });
+    }
+	
+	
+	
+	document.addEventListener('DOMContentLoaded', function () {
+    const container = document.getElementById('skills-container');
+
+    container.addEventListener('click', function (e) {
+        if (e.target.classList.contains('skill-badge')) {
+            const skill = e.target.getAttribute('data-skill');
+            openSkillTestWindow(skill);
+        }
+    });
+});
+
+function escapeHTML(str) {
+  return str.replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+}
+
+
+
+
+//Skill Test Window
+
+function openSkillTestWindow(skill) {
+    const testWindow = window.open('', '_blank', 'width=700,height=700');
+
+    if (!testWindow) {
+        alert('Popup blocked! Please allow popups.');
+        return;
+    }else{
+		    testWindow.document.write(`
+<html>
+<head>
+    <title>Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 20px; font-family: 'Segoe UI', sans-serif; }
+        #timer { font-size: 1.2rem; font-weight: bold; text-align: right; }
+        .question-card { margin-top: 20px; }
+        .option-group { margin-left: 15px; }
+        .option-group label { margin-left: 5px; }
+        .btn-next { margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container mt-5 text-center">
+        <div class="alert alert-info">
+            <h4>Please Wait! We are generating your Test! It may take a while....</h4>
+        </div>
+    </div>
+</body>
+</html>
+`);
+	}
+
+    fetch(`/candidates/generate-skill-test/?skill=${encodeURIComponent(skill)}`)
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                testWindow.document.write(`<p>Unable to load test: ${data.message}</p>`);
+                return;
+            }
+
+            const questions = data.questions;
+            let current = 0, countdownInterval, countdownTimeout;
+
+            function renderQuestion() {
+                const q = questions[current];
+                testWindow.document.body.innerHTML = `
+                    <div class="alert-danger" style="width:100%;display:block;">Dear Candidate!<br> Please note that this window is focus protected and you are supposed to refrain from these:<br> 1. Minimizing the Window.<br> 2. Clicking outside the window <br>3. Trying to get help from any material/person.</div>
+					<div id="timer" style="margin:10px;font-weight:bold;float:right;"></div>
+                        <div id="question-container" style="float:left;width:100%;"> 
+						<div class="card shadow p-4">
+						<h4 class="card-title">Question ${current + 1} of ${questions.length}</h4>
+                        <p class="card-text">${escapeHTML(q.question)}</p> ${q.options.map((opt, i) =>
+                            `<div class="option-group"><input type="radio" name="option" value="${escapeHTML(opt)}" id="opt${i}">
+                             <label for="opt${i}">${escapeHTML(opt)}</label></div>`
+                        ).join('')}
+                        <button onclick="answer()"  class="btn btn-primary btn-next">Next</button>
+                    </div></div>`;
+                startCountdown(90);
+            }
+
+            function startCountdown(seconds) {
+                const timer = testWindow.document.getElementById('timer');
+                let remain = seconds;
+                countdownInterval = setInterval(() => {
+                    timer.textContent = `Time left: ${remain--}s`;
+                }, 1000);
+                countdownTimeout = setTimeout(() => answer(true), seconds * 1000);
+            }
+
+            testWindow.answer = function (auto = false) {
+                clearInterval(countdownInterval);
+                clearTimeout(countdownTimeout);
+
+                const selected = testWindow.document.querySelector('input[name="option"]:checked');
+                questions[current].selected = selected ? selected.value : "";
+
+                current++;
+                if (current < questions.length) renderQuestion();
+                else submitTest();
+            };
+
+            function submitTest() {
+                testWindow.document.body.innerHTML = `<p>Submitting...</p>`;
+                fetch('/candidates/submit-skill-test/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ skill, answers: questions }) // answers = modified questions array
+                })
+                .then(res => res.json())
+                .then(r => testWindow.document.body.innerHTML = `<h4>${r.message}</h4>`)
+                .catch(() => testWindow.document.body.innerHTML = `<p>Error submitting test.</p>`);
+            }
+
+            testWindow.onblur = () => {
+                setTimeout(() => {
+                    if (!testWindow.document.hasFocus()) {
+                        alert("Focus lost! Closing test.");
+                        testWindow.close();
+                    }
+                }, 300);
+            };
+
+            renderQuestion();
+        })
+        .catch(err => {
+            testWindow.document.write(`<p>Error loading test: ${err}</p>`);
+        });
+}
+
+
+
+
+
+
+
+</script>
+	
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js" 
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" 
+        crossorigin="anonymous"></script>
+    
+</body>
+</html>

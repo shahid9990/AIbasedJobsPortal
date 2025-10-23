@@ -1,0 +1,66 @@
+{% load static %}
+<link rel="stylesheet" href="https://bootswatch.com/5/lux/bootstrap.min.css">
+
+<div class="container mt-4">
+    <h2 class="text-center">Employer Registration</h2>
+    
+    {% if messages %}
+        <div class="alert alert-dismissible alert-info">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="form-floating" style="width: 80%; margin: 0 auto;">
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" name="firstname" placeholder="First Name" required>
+                <label>First Name</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" name="lastname" placeholder="Last Name" required>
+                <label>Last Name</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="email" class="form-control" name="email" placeholder="Email" required>
+                <label>Email</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="password" class="form-control" name="password" placeholder="Password" required>
+                <label>Password</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="password" class="form-control" name="confirm_password" placeholder="Confirm Password" required>
+                <label>Confirm Password</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" name="company" placeholder="Company Name" required>
+                <label>Company Name</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" name="phone" placeholder="Phone Number">
+                <label>Phone (Optional)</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="date" class="form-control" name="joined_date">
+                <label>Joined Date (Optional)</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 10px;">Register</button>
+        </form>
+
+        <div class="text-center mt-3">
+            <a href="{% url 'employer_login' %}" class="btn btn-outline-secondary btn-lg" style="width: 100%;">Back to Login</a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Builder</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        #resume-preview {
+            border: 1px solid #ddd;
+            padding: 20px;
+            min-height: 400px;
+            margin-top: 20px;
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>Resume Builder</h2>
+
+        <!-- Resume Input Form -->
+        <form id="resume-form">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label for="professional_summary" class="form-label">Professional Summary</label>
+                <textarea class="form-control" id="professional_summary" rows="3"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Work Experience</label>
+                <div id="experience-section">
+                    <!-- Experience fields dynamically added here -->
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="addExperience()">+ Add Experience</button>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Education</label>
+                <div id="education-section">
+                    <!-- Education fields dynamically added here -->
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="addEducation()">+ Add Education</button>
+            </div>
+
+            <div class="mb-3">
+                <label for="skills" class="form-label">Skills (comma-separated)</label>
+                <input type="text" class="form-control" id="skills">
+            </div>
+
+            <div class="mb-3">
+                <label for="languages" class="form-label">Languages (comma-separated)</label>
+                <input type="text" class="form-control" id="languages">
+            </div>
+
+            <div class="mb-3">
+                <label for="resume_theme" class="form-label">Select Resume Theme</label>
+                <select class="form-control" id="resume_theme">
+                    <option value="classic">Classic</option>
+                    <option value="modern">Modern</option>
+                    <option value="elegant">Elegant</option>
+                </select>
+            </div>
+
+            <button type="button" class="btn btn-primary" onclick="generateResume()">Generate Resume</button>
+			<a href="{% url 'candidate_dashboard' %}" class="btn btn-secondary">Go Back</a>
+        </form>
+
+        <h3 class="mt-4">Generated Resume (Live Preview)</h3>
+        <textarea class="form-control mt-3" id="resume-json" rows="10"></textarea>
+        <div id="resume-preview"></div>
+
+        <button class="btn btn-success mt-3" onclick="saveResume()">Save Resume</button>
+		<a href="{% url 'candidate_dashboard' %}" class="btn btn-secondary mt-3">Go Back</a>
+    </div>
+
+    <script>
+	document.addEventListener("DOMContentLoaded", function () {
+    fetch("/candidates/resume-builder/", {
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            let resumeJson = JSON.stringify(data.resume, null, 2);  //Format JSON properly
+            document.getElementById("resume-json").value = resumeJson;
+            renderResume(data.resume);  //Load into preview
+        } else {
+            console.log("No existing resume found.");
+        }
+    })
+    .catch(error => console.error("Error fetching resume:", error));
+});
+	
+        function addExperience() {
+            let section = document.getElementById("experience-section");
+            let div = document.createElement("div");
+            div.innerHTML = `<input type="text" class="form-control mb-2" name="experience" placeholder="Must include Job Title, Company, Years">`;
+            section.appendChild(div);
+        }
+
+        function addEducation() {
+            let section = document.getElementById("education-section");
+            let div = document.createElement("div");
+            div.innerHTML = `<input type="text" class="form-control mb-2" name="education" placeholder="Must include Degree, University, Year">`;
+            section.appendChild(div);
+        }
+
+       function generateResume() {
+    let summary = document.getElementById("professional_summary").value;
+    let experiences = Array.from(document.querySelectorAll("input[name='experience']")).map(e => e.value);
+    let educations = Array.from(document.querySelectorAll("input[name='education']")).map(e => e.value);
+    let skills = document.getElementById("skills").value;
+    let languages = document.getElementById("languages").value;
+    let theme = document.getElementById("resume_theme").value;
+
+    let data = {
+        summary: summary,
+        experiences: experiences,
+        educations: educations,
+        skills: skills,
+        languages: languages,
+        theme: theme
+    };
+
+    fetch("/candidates/generate-resume/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) {
+            alert("Error generating resume: " + data.error);
+            return;
+        }
+
+        let resume = data.resume;
+
+        //Store JSON response in textarea
+        document.getElementById("resume-json").value = JSON.stringify(resume, null, 2);
+
+        //Render structured resume preview
+        renderResume(resume);
+    })
+    .catch(error => console.error("Error generating resume:", error));
+}
+
+document.getElementById("resume-json").addEventListener("input", function() {
+    try {
+        let editedResume = JSON.parse(this.value);
+        renderResume(editedResume);
+    } catch (e) {
+        console.error("Invalid JSON format");
+    }
+});
+
+        function renderResume(resume) {
+    let preview = `<h3>${resume.name || "N/A"}</h3>`;
+
+    //Handle summary (handles both string and object formats)
+    if (typeof resume.summary === "string") {
+        preview += `<p><strong>Summary:</strong> ${resume.summary}</p>`;
+    } else if (typeof resume.summary === "object") {
+        preview += `<h4>Summary</h4><ul>`;
+        Object.entries(resume.summary).forEach(([key, value]) => {
+            preview += `<li><strong>${formatKey(key)}:</strong> ${value}</li>`;
+        });
+        preview += `</ul>`;
+    }
+
+    //Handle experience
+    if (Array.isArray(resume.experiences) && resume.experiences.length > 0) {
+        preview += `<h4>Experience</h4><ul>`;
+        resume.experiences.forEach(exp => {
+            preview += `<li><strong>${exp.position || "N/A"}</strong> at ${exp.company || "N/A"} 
+                        (${exp.startDate || "N/A"} - ${exp.endDate || "N/A"}) 
+                        <br><em>${exp.location || "N/A"}</em>`;
+            if (exp.description) preview += `<br>${exp.description}`;
+            preview += `</li>`;
+        });
+        preview += `</ul>`;
+    }
+
+    //Handle education
+    if (Array.isArray(resume.educations) && resume.educations.length > 0) {
+        preview += `<h4>Education</h4><ul>`;
+        resume.educations.forEach(edu => {
+            preview += `<li><strong>${edu.degree || "N/A"}</strong> at ${edu.institution || "N/A"} 
+                        (${edu.date || "N/A"})`;
+            if (edu.grade) preview += ` - Grade: ${edu.grade}`;
+            if (edu.subjects) preview += ` - Subjects: ${edu.subjects}`;
+            preview += `</li>`;
+        });
+        preview += `</ul>`;
+    }
+
+    //Handle skills
+    if (resume.skills) {
+        preview += `<p><strong>Skills:</strong> ${resume.skills}</p>`;
+    }
+
+    //Handle languages
+    if (resume.languages) {
+        preview += `<p><strong>Languages:</strong> ${resume.languages}</p>`;
+    }
+
+    document.getElementById("resume-preview").innerHTML = preview;
+}
+
+//Utility function to format object keys (e.g., convert "fatherName" → "Father Name")
+function formatKey(key) {
+    return key.replace(/([A-Z])/g, " $1").replace(/^./, str => str.toUpperCase());
+}
+
+        function saveResume() {
+            let resumeJson = document.getElementById("resume-json").value;
+
+            fetch("/candidates/save-resume/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+                },
+                body: JSON.stringify({ resume: JSON.parse(resumeJson) })
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(error => console.error("Error saving resume:", error));
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,422 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JOBSCLUB | HOME PAGE</title>
+	<link rel="stylesheet" href="https://bootswatch.com/5/lux/bootstrap.min.css">
+	<style>
+	/* Pricing Section */
+.pricing-section {
+    background: #f4f4f4;
+    text-align: center;
+    padding: 50px;
+}
+
+.pricing-container {
+    max-width: 600px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.pricing-container h2 {
+    color: #2575fc;
+    font-size: 28px;
+    margin-bottom: 15px;
+}
+
+.pricing-container p {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.pricing-container .btn-primary {
+    background: linear-gradient(to right, #2575fc, #6a11cb);
+    border: none;
+    padding: 10px 20px;
+    font-size: 18px;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.pricing-container .btn-primary:hover {
+    background: linear-gradient(to right, #6a11cb, #2575fc);
+}
+
+/* Pricing Modal */
+.modal-content {
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    background: #55595c;
+    color: white;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.modal-title {
+    font-size: 22px;
+}
+
+/* Pricing Grid */
+.pricing-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* Pricing Cards */
+.pricing-card {
+    background: white;
+    padding: 20px;
+    width: 280px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease-in-out;
+}
+
+.pricing-card img {
+    width: 60px;
+    margin-bottom: 10px;
+}
+
+.pricing-card h3 {
+    font-size: 20px;
+    color: #333;
+}
+
+.pricing-card .price {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2575fc;
+    margin: 10px 0;
+}
+
+.pricing-card ul {
+    list-style: none;
+    padding: 0;
+    text-align: center;
+    font-size: 16px;
+    color: #555;
+}
+
+.pricing-card ul li {
+    margin: 5px 0;
+}
+
+/* Hover Effect */
+.pricing-card:hover {
+    transform: scale(1.05);
+}
+
+.modal {
+    --bs-modal-zindex: 1055;
+    --bs-modal-width: 80%;
+	
+	}
+
+	</style>
+</head>
+<body>
+   <!--<h2>Welcome, {{ request.session.employer_email }}</h2>
+    
+    <h3>Employer Options:</h3>-->
+	<nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">home page</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarColor02">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link active" href="{% url 'home' %}">Home
+            <span class="visually-hidden">(current)</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'employer_login' %}">Employer Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'candidate_login' %}">Candidate Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#modalone">Features</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+          <div class="dropdown-menu">
+		  
+            
+            <a class="dropdown-item"  href="#" data-bs-toggle="modal" data-bs-target="#pricingModal">Pricing</a>
+            <a class="dropdown-item"  href="#" data-bs-toggle="modal" data-bs-target="#aboutModal">About</a>
+            
+          </div>
+        </li>
+      </ul>
+      <form class="d-flex">
+        <input class="form-control me-sm-2" type="search" placeholder="Search">
+        <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+      </form>
+    </div>
+  </div>
+</nav>
+<div class="container mt-4">
+    <h2 class="mb-3">Latest Job Postings</h2>
+    <div class="row" style="margin:0px auto;">
+        {% for job in job_posts %}
+		<div class="card border-secondary mb-3" style="max-width: 20rem; margin:10px;">
+  <div class="card-header rounded-pill">Job Post</div>
+  <div class="card-body">
+    <h4 class="card-title">{{ job.job_title }}</h4>
+    <p class="card-text"><strong>Location:</strong> {{ job.location }}</p>
+                    <p class="card-text"><strong>Company:</strong> {{ job.company }}</p>
+                    <p class="card-text"><strong>Skills:</strong> {{ job.skills }}</p>
+                    
+  </div>
+  <a href="{% url 'job_details' job.id %}" class="btn btn-primary rounded-pill">View Job Details</a>
+</div>
+        
+        {% empty %}
+        <p>No job postings available.</p>
+        {% endfor %}
+    </div>
+
+    <h2 class="mt-5 mb-3">Latest Blog Posts</h2>
+    <div class="row" style="margin:0px auto;">
+        {% for blog in blog_posts %}
+		<div class="card border-secondary mb-3" style="max-width: 30rem; margin:10px;">
+  <div class="card-header rounded-pill">Blog Post</div>
+  <div class="card-body">
+    <h4 class="card-title">{{ blog.title }}</h4>
+    <p class="card-text blogposts">{{ blog.outline }}</p>
+                    
+  </div>
+  <a href="{% url 'blog_details' blog.id %}" class="btn btn-secondary">Read More</a>
+</div>
+       
+        {% empty %}
+        <p>No blog posts available.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="modal" id="modalone">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" style="color:white;">Features of Jobs Club: AI Recruitment & Staffing Web Application</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true"></span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <section class="features-container">
+        
+        <div class="feature-box">
+            
+            <h2>Candidate Features</h2>
+            <ul>
+			<li>AI-Powered Job Matching – Get personalized job recommendations based on skills and experience.</li>
+<li>Easy Job Search & Filters – Find jobs using category, location, and salary filters.</li>
+<li>One-Click Applications – Apply for jobs quickly with a single click.</li>
+<li>Resume & Bio Generator – AI-generated professional resumes and bios.</li>
+<li>Online Skill Tests – Attempt AI-generated skill assessments for job applications.</li>
+<li>Application Tracking – View job application statuses in real time.</li>
+</ul>
+        </div>
+
+        <div class="feature-box">
+            
+            <h2>Advanced Employer Tools</h2>
+			<ul>
+            <li>AI-Based Candidate Shortlisting – Intelligent filtering of applicants based on skills and job requirements.</li>
+<li>Automated Job Posting – AI-generated, optimized job descriptions.</li>
+<li>Customizable Job Listings – Define job categories, locations, and salary ranges.</li>
+<li>Application Management – View, shortlist, and manage candidate applications.</li>
+<li>Interview Scheduling – Set up interview dates and notify candidates automatically.</li>
+<li>Contract Generation – AI-powered employment contract drafting.</li>
+</ul>
+        </div>
+
+        <div class="feature-box">
+            
+            <h2>Admin Dashboard</h2>
+			<ul>
+            <li>User & Job Vacancy Management – Approve/reject job postings and user registrations.</li>
+<li>Candidate Bio Approval – Ensure all bios meet professional standards.</li>
+<li>AI-Test Management – Approve, reject, and generate skill assessments.</li>
+<li>Security & Compliance – Monitor platform security and ensure data privacy compliance.</li>
+<li>Advanced Reports & Analytics – Track recruitment trends, user engagement, and hiring success.</li>
+			</ul>
+        </div>
+
+        <div class="feature-box">
+           
+            <h2>AI-Based Automation</h2>
+			<ul>
+            <li>AI-Based Resume Parsing – Automatically extract key details from uploaded resumes.</li>
+<li>AI-Generated Blog Posts – Create engaging blog content for recruitment marketing.</li>
+<li>Smart Email Templates – Auto-generate emails for interview invites and rejections.</li>
+<li>Automated Test Evaluation – AI-powered assessments with instant scoring.</li>
+</ul>
+        </div>
+
+        <div class="feature-box">
+            
+            <h2>Security & Compliance</h2>
+			<ul>
+            <li>Role-Based Access Control (RBAC) – Different access levels for candidates, employers, and admins.</li>
+<li>SSL Encryption – Ensures secure data transfer and storage.</li>
+<li>GDPR & Data Compliance – Protects user data with industry-standard security practices.</li>
+			</ul>
+        </div>
+
+        <div class="feature-box">
+            
+            <h2>Intuitive UI</h2>
+			<ul>
+			<li>Responsive Design – Works seamlessly on desktop, tablet, and mobile.</li>
+<li>Dark & Light Mode – Switch between themes for a comfortable viewing experience.</li>
+<li>Interactive Dashboards – Candidate, Employer, and Admin dashboards for an intuitive workflow.</li>
+<li>Beautiful UI Animations – Smooth transitions, hover effects, and notifications.</li>
+            
+			</ul>
+        </div>
+
+    </section>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>	
+
+
+<div class="modal fade" id="aboutModal" tabindex="-1" aria-labelledby="aboutModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="aboutModalLabel" style="color:white;">About Jobs Club</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h3>Who We Are</h3>
+                    <p>Jobs Club is a cutting-edge AI-powered recruitment and staffing platform designed to revolutionize hiring processes. We help employers find the best talent and empower candidates with smart job-matching technology.</p>
+
+                    <h3>Our Mission</h3>
+                    <p>To create an innovative and efficient recruitment ecosystem that connects talented professionals with top employers through AI-driven technology.</p>
+
+                    <h3>Why Choose Us?</h3>
+                    <ul>
+                        <li>AI-Powered Job Matching – Intelligent recommendations tailored for each user.</li>
+                        <li>Smart Hiring – AI-driven resume parsing, job descriptions, and candidate filtering.</li>
+                        <li>Seamless User Experience – Intuitive dashboards for candidates, employers, and administrators.</li>
+                        <li>Robust Security & Compliance – GDPR-compliant and SSL-encrypted.</li>
+                    </ul>
+
+                    <h3>Our Impact</h3>
+                    <p>Since our launch, Jobs Club has helped thousands of job seekers land their dream jobs and enabled employers to streamline their hiring process efficiently.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+	
+	
+	<!-- Pricing Modal -->
+    <div class="modal fade" id="pricingModal" tabindex="-1" aria-labelledby="pricingModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" style="color:white;">
+                    <h5 class="modal-title" id="pricingModalLabel" style="color:white;">Our Pricing Plans</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="pricing-grid">
+                        <!-- Basic Plan -->
+                        <div class="pricing-card basic-plan">
+                            
+                            <h3>Basic Plan</h3>
+                            <p class="price">$0 / Month</p>
+                            <ul>
+                                <li>✔ 10 Job Applications</li>
+                                <li>✔ AI Resume Generator</li>
+                                <li>✔ Standard Job Matching</li>
+                                <li>❌ Priority Support</li>
+								
+                            </ul>
+                            <button class="btn btn-outline-primary">Get Started</button>
+                        </div>
+
+                        <!-- Premium Plan -->
+                        <div class="pricing-card premium-plan">
+                            
+                            <h3>Premium Plan</h3>
+                            <p class="price">$29 / Month</p>
+                            <ul>
+                                <li>✔ Unlimited Applications</li>
+                                <li>✔ AI-Powered Job Matching</li>
+                                <li>✔ Priority Customer Support</li>
+                                <li>✔ Advanced Resume & Bio Generator</li>
+								<li>✔ Advanced Test Generator</li>
+                            </ul>
+                            <button class="btn btn-primary">Choose Plan</button>
+                        </div>
+
+                        <!-- Enterprise Plan -->
+                        <div class="pricing-card enterprise-plan">
+                            
+                            <h3>Enterprise Plan</h3>
+                            <p class="price">$99 / Month</p>
+                            <ul>
+                                <li>✔ All Premium Features</li>
+                                <li>✔ AI-Based Candidate Screening</li>
+                                <li>✔ Custom Hiring Dashboard</li>
+                                <li>✔ Dedicated Account Manager</li>
+								<li>✔ Interviews Manager</li>
+                            </ul>
+                            <button class="btn btn-dark">Contact Sales</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+	
+	
+ 
+
+   	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js" 
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" 
+        crossorigin="anonymous"></script>
+		<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+		<script>
+		document.addEventListener("DOMContentLoaded", () => {
+    const blogposts = document.querySelectorAll('.blogposts');
+    
+    blogposts.forEach(div => {
+      const markdownContent = div.textContent || div.innerText;
+      const htmlContent = marked.parse(markdownContent);
+      div.innerHTML = htmlContent;
+    });
+  });
+		</script>
+
+</body>
+</html>

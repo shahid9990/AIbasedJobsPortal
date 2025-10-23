@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="toast show" style="padding:20px;width:100%;">
+    <h2>{{ blog.title }}</h2>
+    <p><strong>Published:</strong> {{ blog.created_at|date:"F d, Y" }}</p>
+    
+     
+    
+    <div class="border p-3">{{ blog.content|safe }}</div>  <!--Display Markdown as HTML -->
+</div>
+{% endblock %}

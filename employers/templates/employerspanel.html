@@ -1,0 +1,1906 @@
+{% load static %}
+{% if user.is_authenticated %}
+    <script>
+        console.log("User is authenticated: {{ user.username }}");
+        console.log("Session employer email: {{ request.session.employer_email|default:'Not Found' }}");
+    </script>
+{% else %}
+    <script>
+        console.log("User is not authenticated. Redirecting...");
+        window.location.href = "{% url 'employer_login' %}";  //Redirect to login page
+    </script>
+{% endif %}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employer Panel</title>
+	<link rel="stylesheet" href="https://bootswatch.com/5/lux/bootstrap.min.css">
+	<style>
+	/* Pricing Section */
+.pricing-section {
+    background: #f4f4f4;
+    text-align: center;
+    padding: 50px;
+}
+
+.pricing-container {
+    max-width: 600px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.pricing-container h2 {
+    color: #2575fc;
+    font-size: 28px;
+    margin-bottom: 15px;
+}
+
+.pricing-container p {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.pricing-container .btn-primary {
+    background: linear-gradient(to right, #2575fc, #6a11cb);
+    border: none;
+    padding: 10px 20px;
+    font-size: 18px;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.pricing-container .btn-primary:hover {
+    background: linear-gradient(to right, #6a11cb, #2575fc);
+}
+
+/* Pricing Modal */
+.modal-content {
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+    background: #55595c;
+    color: white;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.modal-title {
+    font-size: 22px;
+}
+
+/* Pricing Grid */
+.pricing-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* Pricing Cards */
+.pricing-card {
+    background: white;
+    padding: 20px;
+    width: 280px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s ease-in-out;
+}
+
+.pricing-card img {
+    width: 60px;
+    margin-bottom: 10px;
+}
+
+.pricing-card h3 {
+    font-size: 20px;
+    color: #333;
+}
+
+.pricing-card .price {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2575fc;
+    margin: 10px 0;
+}
+
+.pricing-card ul {
+    list-style: none;
+    padding: 0;
+    text-align: center;
+    font-size: 16px;
+    color: #555;
+}
+
+.pricing-card ul li {
+    margin: 5px 0;
+}
+
+/* Hover Effect */
+.pricing-card:hover {
+    transform: scale(1.05);
+}
+
+.modal {
+    --bs-modal-zindex: 1055;
+    --bs-modal-width: 80%;
+	
+	}
+	
+	.table {
+    table-layout: auto;  /* Allows columns to resize based on content */
+    width: 100%;  /* Ensures table fits within the page */
+}
+
+.table-responsive {
+    overflow-x: auto; /* Enables horizontal scrolling */
+}
+
+	</style>
+</head>
+<body>
+   <!--<h2>Welcome, {{ request.session.employer_email }}</h2>
+    
+    <h3>Employer Options:</h3>-->
+	<nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">employers panel</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarColor02">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link active" href="{% url 'home' %}">Home
+            <span class="visually-hidden">(current)</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#modalone" data-bs-toggle="modal" data-bs-target="#modalone">Features</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#pricingModal">Pricing</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#aboutModal">About</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+          <div class="dropdown-menu">
+		  
+            
+            <a class="dropdown-item" href="#">Profile</a>
+            <a class="dropdown-item" href="#">Subscriptions</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{% url 'employer_logout' %}">Logout</a>
+          </div>
+        </li>
+      </ul>
+      <form class="d-flex">
+        <input class="form-control me-sm-2" type="search" placeholder="Search">
+        <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+      </form>
+    </div>
+  </div>
+</nav>
+
+<div class="accordion" id="accordionExample">
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingOne">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+        <strong>Generate Job Post | Generate Job Postings using our AI Tool and Post it.</strong> 
+      </button>
+    </h2>
+    <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample" style="">
+      <div class="accordion-body toast show" style="width:90%;margin:20px auto;">
+	  
+            <textarea id="job-post-content" class="form-control" rows="5" style="height: 400px; overflow-y: auto; width:49%; float:left;" placeholder="Example:
+Software Developer for pixoire with deadline 31-03-2025 
+or 
+for best results:
+Job Title: Software Developer
+Location: Lahore, Punjab
+Company: Pixoire
+Employment Type: Full-time/Part-time/Contract/Internship
+Experience Level: Entry-level/Mid-level/Senior-level/Experience Level
+Reports to: Senior Developer
+Salary Range: 80k PKR to 150k PKR
+Application Deadline: 31-03-2025
+Required Skills: ">
+</textarea>
+			<div id="job-preview" class="border p-3 bg-light" style="height: 400px; overflow-y: auto; width:50%; float:right;">
+                <em>Generated job post will appear here...</em>
+            </div>
+			<p>Type the details above to create a job posting with AI. Once created, the results will be shown above and you will be able to edit the post or add further instructions to regenerate with AI. For better results, enter the above details carefully.</p>
+            <button class="btn btn-primary" id="generate-job-btn" style="width:100%; margin:5px auto;">Generate Job Post</button>
+			
+			<div class="card">
+    <div class="card-header">
+        <h3>Post the Job you generated</h3>
+    </div>
+    <div class="card-body">
+        <form id="job-posting-form">
+            {% csrf_token %}
+            
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" name="job_title" placeholder="Software Developer" required>
+                <label>Job Title</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" name="location" placeholder="Lahore, Punjab" required>
+                <label>Location</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" name="company" placeholder="Pixoire" required>
+                <label>Company</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <select class="form-control" name="employment_type" required>
+                    <option value="Full-time">Full-time</option>
+                    <option value="Part-time">Part-time</option>
+                    <option value="Contract">Contract</option>
+                    <option value="Internship">Internship</option>
+                </select>
+                <label>Employment Type</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <select class="form-control" name="experience_level" required>
+                    <option value="Entry-level">Entry-level</option>
+                    <option value="Mid-level" selected>Mid-level</option>
+                    <option value="Senior-level">Senior-level</option>
+                </select>
+                <label>Experience Level</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" name="reports_to" placeholder="Senior Developer" required>
+                <label>Reports To</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" name="salary_range" placeholder="80k PKR to 150k PKR" required>
+                <label>Salary Range</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="date" class="form-control" name="application_deadline" required>
+                <label>Application Deadline</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" name="skills" placeholder="Python, Django, JavaScript" required>
+                <label>Skills (comma-separated)</label>
+            </div>
+			<textarea id="job_details_post" name="job_details_post" class="form-control" rows="5" style="height: 300px; overflow-y: auto; width:100%; float:left;"></textarea>
+
+            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 10px;">Post Job</button>
+        </form>
+
+        <div id="job-posting-message" class="alert mt-3" style="display: none;"></div>
+    </div>
+</div>
+			
+        </div>
+    </div>
+  </div>
+ 
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingThree">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+        <strong>Generate Blog Posts | Generate a Blog Post using our AI Tool.</strong>
+      </button>
+    </h2>
+    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample" style="">
+      <div class="accordion-body toast show" style="width:95%;margin:20px auto;">
+        <div class="card">
+    <div class="card-header">
+        <h5>Generate Blog Post with AI</h5>
+    </div>
+    <div class="card-body">
+        <div class="form-floating mb-3">
+            <input type="text" id="blog-title" class="form-control" placeholder="Enter blog title or keep it empty to get a random article.">
+			<p>Enter blog title or keep it empty to get a random article.</p>
+            <label for="blog-title">Blog Title</label>
+        </div>
+
+        <button class="btn btn-primary" id="generate-blog-btn">Generate Blog Post</button>
+
+        <div class="mt-3">
+            <label for="blog-outline">AI-Generated Outline</label>
+            <textarea id="blog-outline" class="form-control" rows="4"></textarea>
+        </div>
+
+        <div class="mt-3">
+            <label for="blog-content">Blog Content</label>
+            <textarea id="blog-content" class="form-control" rows="6"></textarea>
+        </div>
+
+        <div class="mt-3">
+            <h6>Live Preview</h6>
+            <div id="blog-preview" class="border p-3 bg-light"></div>
+        </div>
+
+        <button class="btn btn-success mt-3" id="submit-blog-btn">Submit Blog Post</button>
+    </div>
+</div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingFive">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+        <strong>Generate Test | Use our AI Tool to Generate a Test automatically.</strong>
+      </button>
+    </h2>
+    <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#accordionExample" style="">
+      <div class="accordion-body toast show" style="width:95%;margin:20px auto;">
+	  <p>Enter the No of questions you want in the generated test and click on generate test against a job posting to generate test.</p>
+	  <div class="form-floating mb-3">
+	  
+	  
+	  
+                    
+		</div>			
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Job Title</th>
+            <th>Location</th>
+            <th>Skills</th>
+            <th>Action<input type="text" id="no-of-qs" class="form-control" placeholder="No. of Questions">
+					</th>
+        </tr>
+    </thead>
+    <tbody id="jobs-list">
+        <!-- Jobs will be dynamically inserted here -->
+    </tbody>
+</table>
+      </div>
+    </div>
+  </div>
+   <div class="accordion-item">
+    <h2 class="accordion-header" id="headingTwo">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+        <strong>View your posted job vacancies | You can View, edit, delete your job postings here.</strong> 
+      </button>
+    </h2>
+    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample" style="">
+      <div class="accordion-body toast show" style="width:95%;margin:20px auto;">
+<div class="card" style="overflow-x: auto;">
+    
+    <h2>Your Job Posts</h2>
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+				<th>Actions</th>
+                <th>Job Title</th>
+                <th>Location</th>
+                <th>Company</th>
+                <th>Employment Type</th>
+                <th>Experience Level</th>
+                <th>Reports To</th>
+                <th>Salary Range</th>
+                <th>Application Deadline</th>
+                
+            </tr>
+        </thead>
+        <tbody id="job-posts-body">
+            <!-- Jobs will be loaded here -->
+        </tbody>
+    </table>
+
+</div>
+
+      </div>
+    </div>
+  </div>
+  
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingFour">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+        <strong>View Blog Posts | View Blog Posts to Edit or Delete them.</strong>
+      </button>
+    </h2>
+    <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionExample" style="">
+      <div class="accordion-body toast show" style="width:95%;margin:20px auto;">
+	  <div class="card" style="overflow-x: auto;">
+        <h2>Your Blog Posts</h2>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Actions</th>
+				<th>Title</th>
+                
+            </tr>
+        </thead>
+        <tbody id="blog-posts-table">
+            <!-- Blog posts will be loaded here dynamically -->
+        </tbody>
+    </table>
+	</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingSix">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+        <strong>Candidate Recommendations | Use our AI tool to get best candidate recommendations automatically. </strong>
+      </button>
+    </h2>
+    <div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingSix" data-bs-parent="#accordionExample" style="">
+      <div class="accordion-body toast show" style="width:95%;margin:20px auto;">
+        
+  <textarea id="job-description" class="form-control" rows="5" placeholder="Describe the ideal candidate..."></textarea>
+<button onclick="findSuitableCandidates()" class="btn btn-primary mt-2">Find Candidates</button>
+
+<div id="results" class="mt-4"><table id="candidatesTable" class="table table-striped"></table></div>
+
+      </div>
+    </div>
+  </div>
+ 
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingEight">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEight" aria-expanded="false" aria-controls="collapseEight">
+        <strong>Create & Send Emails | Generate & Download Contracts Using AI. </strong>
+      </button>
+    </h2>
+    <div id="collapseEight" class="accordion-collapse collapse" aria-labelledby="headingEight" data-bs-parent="#accordionExample" style="">
+      <div class="accordion-body toast show" style="width:95%;margin:20px auto;">
+        <div class="container my-5">
+ <h5>Shortlisted Candidates</h5>
+<ul id="shortlistedCandidatesList" class="list-group">
+    <!-- Candidates will be dynamically populated here -->
+</ul>
+
+  <h4>🔍 Search Candidates</h4>
+  <input type="text" id="searchInput" class="form-control mb-2" placeholder="Search by name, skill, or location">
+  <div id="searchResults" class="list-group"></div>
+
+  <h4 class="mt-4">📧 Candidates List</h4>
+  <ul id="emailList" class="list-group mb-3">Selected candidates will appear here.</ul>
+
+  <textarea id="emailPrompt" class="form-control mb-2" rows="2" placeholder="Enter prompt to generate email..."></textarea>
+  <button class="btn btn-success" onclick="generateEmail()">Generate Contents for Email/Contracts</button>
+
+  <div class="mt-3">
+    <label><strong>Subject</strong></label>
+    <input type="text" id="emailSubject" class="form-control mb-2">
+
+    <label><strong>Content</strong></label>
+    <textarea id="emailBody" class="form-control" rows="6"></textarea>
+	<div id="emailPreview" class="mt-3 p-3 border rounded bg-light"></div>
+  </div>
+
+  <button class="btn btn-primary mt-3" onclick="sendEmails()">Send Emails</button>
+  <button class="btn btn-success mt-3" onclick="generateContracts()">Generate Contracts</button>
+<div id="contract-links" class="mt-3"></div>
+</div>
+      </div>
+    </div>
+  </div>
+ 
+  <div class="accordion-item">
+    <h2 class="accordion-header" id="headingTen">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTen" aria-expanded="false" aria-controls="collapseTen">
+        <strong>Create Orders | Need additional features? create an order now. </strong>
+      </button>
+    </h2>
+    <div id="collapseTen" class="accordion-collapse collapse" aria-labelledby="headingTen" data-bs-parent="#accordionExample" style="">
+      <div class="accordion-body toast show" style="width:95%;margin:20px auto;">
+        <Strong>Orders Panel for scheduling interviews etc.</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Candidates relevant to Job -->
+
+<div class="modal fade" id="candidatesModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Candidates</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="candidatesModalBody">
+        <!-- Loaded via JS -->
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--Test Modal -->
+<div class="modal fade" id="testModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="testModalLabel">Generated Test</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="test-content">
+        <!-- Test will be inserted here -->
+      </div>
+	  <div class="form-floating mb-3">
+	  <input type="hidden" id="edit-test-id">
+            <textarea class="form-control" id="edit-test" placeholder="Content"></textarea>
+            <label for="edit-content">Edit test values if you are not satisfied.</label>
+          </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" onclick="saveTest()">Save Test</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!--Blog Post Edit Modal -->
+<div class="modal fade" id="editBlogModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editBlogPostLabel">Edit Blog Post</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="edit-blog-form">  
+          <input type="hidden" id="edit-blog-id">  
+          
+          <div class="form-floating mb-3">
+            <input type="text" class="form-control" id="edit-title" placeholder="Title">
+            <label for="edit-title">Title</label>
+          </div>
+
+          <div class="form-floating mb-3">
+            <textarea class="form-control" id="edit-outline" placeholder="Outline"></textarea>
+            <label for="edit-outline">Outline</label>
+          </div>
+
+          <div class="form-floating mb-3">
+            <textarea class="form-control" id="edit-content" placeholder="Content"></textarea>
+            <label for="edit-content">Content</label>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Modal for Editing Job Post -->
+<div class="modal fade" id="editJobModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Job Post</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-job-form">
+                    {% csrf_token %}
+                    <input type="hidden" id="edit-job-id">
+
+                    <label>Job Title</label>
+                    <input type="text" id="edit-job-title" class="form-control" required>
+
+                    <label>Location</label>
+                    <input type="text" id="edit-job-location" class="form-control" required>
+
+                    <label>Company</label>
+                    <input type="text" id="edit-job-company" class="form-control" required>
+
+                    <label>Employment Type</label>
+                    <select id="edit-job-employment-type" class="form-control" required>
+                        <option value="Full-time">Full-time</option>
+                        <option value="Part-time">Part-time</option>
+                        <option value="Contract">Contract</option>
+                        <option value="Internship">Internship</option>
+                    </select>
+
+                    <label>Experience Level</label>
+                    <select id="edit-job-experience-level" class="form-control" required>
+                        <option value="Entry-level">Entry-level</option>
+                        <option value="Mid-level">Mid-level</option>
+                        <option value="Senior-level">Senior-level</option>
+                    </select>
+
+                    <label>Reports To</label>
+                    <input type="text" id="edit-job-reports-to" class="form-control" required>
+
+                    <label>Salary Range</label>
+                    <input type="text" id="edit-job-salary-range" class="form-control" required>
+
+                    <label>Application Deadline</label>
+                    <input type="date" id="edit-job-application-deadline" class="form-control" required>
+
+                    <label>Skills</label>
+                    <input type="text" id="edit-job-skills" class="form-control" required>
+					<label>Job Post As displayed on page</label>
+					<textarea id="edit-job-details" class="form-control" rows="4" required></textarea>
+
+                    <button type="submit" class="btn btn-primary mt-3">Update Job</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="modalone">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" style="color:white;">Features of Jobs Club: AI Recruitment & Staffing Web Application</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true"></span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <section class="features-container">
+        
+        <div class="feature-box">
+            
+            <h2>Candidate Features</h2>
+            <ul>
+			<li>AI-Powered Job Matching – Get personalized job recommendations based on skills and experience.</li>
+<li>Easy Job Search & Filters – Find jobs using category, location, and salary filters.</li>
+<li>One-Click Applications – Apply for jobs quickly with a single click.</li>
+<li>Resume & Bio Generator – AI-generated professional resumes and bios.</li>
+<li>Online Skill Tests – Attempt AI-generated skill assessments for job applications.</li>
+<li>Application Tracking – View job application statuses in real time.</li>
+</ul>
+        </div>
+
+        <div class="feature-box">
+            
+            <h2>Advanced Employer Tools</h2>
+			<ul>
+            <li>AI-Based Candidate Shortlisting – Intelligent filtering of applicants based on skills and job requirements.</li>
+<li>Automated Job Posting – AI-generated, optimized job descriptions.</li>
+<li>Customizable Job Listings – Define job categories, locations, and salary ranges.</li>
+<li>Application Management – View, shortlist, and manage candidate applications.</li>
+<li>Interview Scheduling – Set up interview dates and notify candidates automatically.</li>
+<li>Contract Generation – AI-powered employment contract drafting.</li>
+</ul>
+        </div>
+
+        <div class="feature-box">
+            
+            <h2>Admin Dashboard</h2>
+			<ul>
+            <li>User & Job Vacancy Management – Approve/reject job postings and user registrations.</li>
+<li>Candidate Bio Approval – Ensure all bios meet professional standards.</li>
+<li>AI-Test Management – Approve, reject, and generate skill assessments.</li>
+<li>Security & Compliance – Monitor platform security and ensure data privacy compliance.</li>
+<li>Advanced Reports & Analytics – Track recruitment trends, user engagement, and hiring success.</li>
+			</ul>
+        </div>
+
+        <div class="feature-box">
+           
+            <h2>AI-Based Automation</h2>
+			<ul>
+            <li>AI-Based Resume Parsing – Automatically extract key details from uploaded resumes.</li>
+<li>AI-Generated Blog Posts – Create engaging blog content for recruitment marketing.</li>
+<li>Smart Email Templates – Auto-generate emails for interview invites and rejections.</li>
+<li>Automated Test Evaluation – AI-powered assessments with instant scoring.</li>
+</ul>
+        </div>
+
+        <div class="feature-box">
+            
+            <h2>Security & Compliance</h2>
+			<ul>
+            <li>Role-Based Access Control (RBAC) – Different access levels for candidates, employers, and admins.</li>
+<li>SSL Encryption – Ensures secure data transfer and storage.</li>
+<li>GDPR & Data Compliance – Protects user data with industry-standard security practices.</li>
+			</ul>
+        </div>
+
+        <div class="feature-box">
+            
+            <h2>Intuitive UI</h2>
+			<ul>
+			<li>Responsive Design – Works seamlessly on desktop, tablet, and mobile.</li>
+<li>Dark & Light Mode – Switch between themes for a comfortable viewing experience.</li>
+<li>Interactive Dashboards – Candidate, Employer, and Admin dashboards for an intuitive workflow.</li>
+<li>Beautiful UI Animations – Smooth transitions, hover effects, and notifications.</li>
+            
+			</ul>
+        </div>
+
+    </section>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>	
+
+
+<div class="modal fade" id="aboutModal" tabindex="-1" aria-labelledby="aboutModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="aboutModalLabel" style="color:white;">About Jobs Club</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h3>Who We Are</h3>
+                    <p>Jobs Club is a cutting-edge AI-powered recruitment and staffing platform designed to revolutionize hiring processes. We help employers find the best talent and empower candidates with smart job-matching technology.</p>
+
+                    <h3>Our Mission</h3>
+                    <p>To create an innovative and efficient recruitment ecosystem that connects talented professionals with top employers through AI-driven technology.</p>
+
+                    <h3>Why Choose Us?</h3>
+                    <ul>
+                        <li>AI-Powered Job Matching – Intelligent recommendations tailored for each user.</li>
+                        <li>Smart Hiring – AI-driven resume parsing, job descriptions, and candidate filtering.</li>
+                        <li>Seamless User Experience – Intuitive dashboards for candidates, employers, and administrators.</li>
+                        <li>Robust Security & Compliance – GDPR-compliant and SSL-encrypted.</li>
+                    </ul>
+
+                    <h3>Our Impact</h3>
+                    <p>Since our launch, Jobs Club has helped thousands of job seekers land their dream jobs and enabled employers to streamline their hiring process efficiently.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+	
+	
+	<!-- Pricing Modal -->
+    <div class="modal fade" id="pricingModal" tabindex="-1" aria-labelledby="pricingModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header" style="color:white;">
+                    <h5 class="modal-title" id="pricingModalLabel" style="color:white;">Our Pricing Plans</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="pricing-grid">
+                        <!-- Basic Plan -->
+                        <div class="pricing-card basic-plan">
+                            
+                            <h3>Basic Plan</h3>
+                            <p class="price">$0 / Month</p>
+                            <ul>
+                                <li>✔ 10 Job Applications</li>
+                                <li>✔ AI Resume Generator</li>
+                                <li>✔ Standard Job Matching</li>
+                                <li>❌ Priority Support</li>
+								
+                            </ul>
+                            <button class="btn btn-outline-primary">Get Started</button>
+                        </div>
+
+                        <!-- Premium Plan -->
+                        <div class="pricing-card premium-plan">
+                            
+                            <h3>Premium Plan</h3>
+                            <p class="price">$29 / Month</p>
+                            <ul>
+                                <li>✔ Unlimited Applications</li>
+                                <li>✔ AI-Powered Job Matching</li>
+                                <li>✔ Priority Customer Support</li>
+                                <li>✔ Advanced Resume & Bio Generator</li>
+								<li>✔ Advanced Test Generator</li>
+                            </ul>
+                            <button class="btn btn-primary">Choose Plan</button>
+                        </div>
+
+                        <!-- Enterprise Plan -->
+                        <div class="pricing-card enterprise-plan">
+                            
+                            <h3>Enterprise Plan</h3>
+                            <p class="price">$99 / Month</p>
+                            <ul>
+                                <li>✔ All Premium Features</li>
+                                <li>✔ AI-Based Candidate Screening</li>
+                                <li>✔ Custom Hiring Dashboard</li>
+                                <li>✔ Dedicated Account Manager</li>
+								<li>✔ Interviews Manager</li>
+                            </ul>
+                            <button class="btn btn-dark">Contact Sales</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+	
+	
+  <!--  <ul>
+        
+        <li><a href="{% url 'generate_contract' %}"></a></li>
+        <li><a href="{% url 'create_job_vacancy' %}"></a></li>
+        <li><a href="{% url 'generate_blog_post' %}"></a></li>
+        <li><a href="{% url 'create_email' %}"></a></li>
+        <li><a href="{% url 'shortlist_candidates' %}"></a></li>
+        <li><a href="{% url 'create_order' %}"></a></li>
+        <li><a href="{% url 'recommend_candidates' %}"></a></li>
+		<li><a href="{% url 'generate_tests' %}"></a></li>
+    </ul>-->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+	document.addEventListener("DOMContentLoaded", function () {
+    let textarea = document.getElementById("job-post-content");
+    let previewBox = document.getElementById("job-preview");
+	let job_details_post = document.getElementById("job_details_post");
+    //Live Markdown Preview
+    textarea.addEventListener("input", function () {
+        previewBox.innerHTML = marked.parse(textarea.value);
+		job_details_post.value = textarea.value;
+		//fillJobForm(textarea.value);
+    });
+
+    //Generate Job Post & Auto-Fill Form
+    document.getElementById("generate-job-btn").addEventListener("click", function () {
+        let userInput = textarea.value;
+        fetch("/employers/generate-job-post/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCSRFToken()
+            },
+            body: JSON.stringify({ job_description: userInput })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.job_posting) {
+                textarea.value = data.job_posting; //Update textarea
+                previewBox.innerHTML = marked.parse(data.job_posting); //Show Markdown preview
+                fillJobForm(data.job_posting); //Auto-fill the job form
+				
+				job_details_post.value = textarea.value;
+				
+            } else {
+                previewBox.innerHTML = `<span class="text-danger">Error: ${data.error}</span>`;
+            }
+        })
+        .catch(error => {
+            console.error("Fetch error:", error);
+            previewBox.innerHTML = `<span class="text-danger">Error: Unable to generate job post.</span>`;
+        });
+    });
+
+    //Function to Extract Job Details & Fill the Form
+    function fillJobForm(jobText) {
+        const jobDetails = extractJobDetails(jobText); //Extract details from AI text
+
+        document.querySelector("[name='job_title']").value = cleanText(jobDetails.job_title);
+        document.querySelector("[name='location']").value = cleanText(jobDetails.location);
+        document.querySelector("[name='company']").value = cleanText(jobDetails.company);
+        document.querySelector("[name='reports_to']").value = cleanText(jobDetails.reports_to);
+        document.querySelector("[name='salary_range']").value = cleanText(jobDetails.salary_range);
+        document.querySelector("[name='application_deadline']").value = formatDate(cleanText(jobDetails.application_deadline));
+		console.log(jobDetails.skills);
+        document.querySelector("[name='skills']").value = cleanText(jobDetails.skills);
+
+        //Select the correct option in Employment Type dropdown
+        selectDropdownValue("[name='employment_type']", jobDetails.employment_type);
+        
+        //Select the correct option in Experience Level dropdown
+        selectDropdownValue("[name='experience_level']", jobDetails.experience_level);
+		
+    }
+	
+	function formatDate(inputDate) {
+    let date = new Date(inputDate);
+    let yyyy = date.getFullYear();
+    let mm = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+    let dd = String(date.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+}
+
+    //Extract Job Details from AI Text
+    function extractJobDetails(text) {
+        return {
+            job_title: extractField(text, "Job Title"),
+            location: extractField(text, "Location"),
+            company: extractField(text, "Company"),
+            employment_type: extractField(text, "Employment Type"),
+            experience_level: extractField(text, "Experience Level"),
+            reports_to: extractField(text, "Reports to"),
+            salary_range: extractField(text, "Salary Range"),
+            application_deadline: extractField(text, "Application Deadline"),
+            skills: extractField(text, "Required Skills"),
+        };
+    }
+
+    //Remove `*`, `**`, and extra spaces from text
+    function cleanText(text) {
+        return text ? text.replace(/[*]+/g, "").trim() : "";
+    }
+
+    //Select correct dropdown option
+    function selectDropdownValue(selector, value) {
+        let dropdown = document.querySelector(selector);
+        if (dropdown) {
+            let options = dropdown.options;
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].value.toLowerCase() === value.toLowerCase()) {
+                    dropdown.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+    }
+
+    //Extract Specific Fields from AI Response
+    function extractField(text, fieldName) {
+        let regex = new RegExp(`${fieldName}:\\s*(.*)`, "i");
+        let match = text.match(regex);
+        return match ? match[1].trim() : "";
+    }
+
+    //Get CSRF Token from Django
+    function getCSRFToken() {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            let cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i].trim();
+                if (cookie.startsWith("csrftoken=")) {
+                    cookieValue = cookie.substring("csrftoken=".length, cookie.length);
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+	
+	
+	let jobForm = document.getElementById("job-posting-form");
+    let jobMessage = document.getElementById("job-posting-message");
+
+    jobForm.addEventListener("submit", function (event) {
+        event.preventDefault(); //Prevent page reload
+
+        let formData = new FormData(jobForm);
+
+        fetch("/employers/post-job/", {
+            method: "POST",
+            headers: { "X-CSRFToken": getCSRFToken() },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                jobMessage.className = "alert alert-success";
+                jobMessage.textContent = "Job posted successfully!";
+                jobMessage.style.display = "block";
+                jobForm.reset();
+				loadJobPosts();
+            } else {
+                jobMessage.className = "alert alert-danger";
+                jobMessage.textContent = "Error: " + data.error;
+                jobMessage.style.display = "block";
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            jobMessage.className = "alert alert-danger";
+            jobMessage.textContent = "Something went wrong.";
+            jobMessage.style.display = "block";
+        });
+    });
+
+    function getCSRFToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    }
+	
+	loadJobPosts(); 
+	loadBlogPosts();
+	loadJobs();
+	
+});
+
+
+function loadJobs() {
+    fetch("/employers/jobs/")
+        .then(response => response.json())
+        .then(data => {
+            let jobsList = document.getElementById("jobs-list");
+            jobsList.innerHTML = ""; 
+
+            data.jobs.forEach(job => {
+                let row = `<tr>
+                    <td>${job.job_title}</td>
+                    <td>${job.location}</td>
+                    <td>${job.skills}</td>  <!--Show skills -->
+                    <td>
+                        <button class="btn btn-primary" onclick="generateTest(${job.id})">Generate Test</button>
+                    </td>
+                </tr>`;
+                jobsList.innerHTML += row;
+            });
+        });
+}
+
+function generateTest(jobId) {
+    let numQuestions = document.getElementById("no-of-qs").value || 10;  //Default to 5 if empty
+
+    fetch(`/employers/generate-test/${jobId}/`, {
+        method: "POST",
+        headers: { 
+            "Content-Type": "application/json",  //Send JSON data
+            "X-CSRFToken": getCSRFToken()
+        },
+        body: JSON.stringify({ num_questions: numQuestions }) //Send `num_questions`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            let testHtml = "";
+            data.test.forEach((q, index) => {
+                testHtml += `<p><strong>Q${index + 1}:</strong> ${escapeHtml(q.question)}</p>`;
+                q.options.forEach(option => {
+                    testHtml += `<div>
+                        <input type="radio" name="q${index}" value="${escapeHtml(option)}">
+                        ${escapeHtml(option)}
+                    </div>`;
+                });
+            });
+
+            document.getElementById("test-content").innerHTML = testHtml;
+            document.getElementById("edit-test").innerText = JSON.stringify(data.test, null, 2);
+			document.getElementById("edit-test-id").value = jobId;
+
+            let modal = new bootstrap.Modal(document.getElementById("testModal"));
+            modal.show();
+        } else {
+            alert("Error generating test.");
+        }
+    })
+    .catch(error => {
+        console.error("Fetch error:", error);
+        alert("Error generating test.");
+    });
+}
+
+
+
+function escapeHtml(text) {
+    return text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+
+
+function saveTest() {
+    let testContent = document.getElementById("edit-test").value.trim(); //Get raw text
+    let jobId = document.getElementById("edit-test-id").value;
+
+    try {
+        let parsedTest = JSON.parse(testContent); //Ensure JSON format before sending
+		console.log(parsedTest);
+
+        fetch(`/employers/save-test/${jobId}/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCSRFToken()
+            },
+            body: JSON.stringify({ test: parsedTest }) //Send actual JSON data, not a string
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+            } else {
+                alert(data.error);
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("An error occurred while saving the test.");
+        });
+
+    } catch (e) {
+        alert("Invalid test format. Please check the test content.");
+        console.error("JSON Parsing Error:", e);
+    }
+}
+
+
+
+//Load Blog Posts
+function loadBlogPosts() {
+    fetch("/employers/blog-posts/")
+    .then(response => response.json())
+    .then(data => {
+        let tableBody = document.getElementById("blog-posts-table");
+        tableBody.innerHTML = ""; // Clear previous data
+        data.posts.forEach(post => {
+            let row = `<tr>
+    <td>
+        <button class="btn btn-warning btn-sm" onclick="editBlogPost(${post.id}, \`${post.title}\`, \`${post.outline}\`, \`${post.content}\`)">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete(${post.id})">Delete</button>
+    </td>
+	<td>${post.title}</td>
+    
+</tr>`;
+            tableBody.innerHTML += row;
+        });
+    })
+    .catch(error => console.error("Error loading blog posts:", error));
+}
+
+//Open Edit Modal with Blog Post Data
+function editBlogPost(id, title, outline, content) {
+    document.getElementById("edit-blog-id").value = id;
+    document.getElementById("edit-title").value = title;
+    document.getElementById("edit-outline").value = outline;
+    document.getElementById("edit-content").value = content;
+
+    // Show modal
+    let modal = new bootstrap.Modal(document.getElementById("editBlogModal"));
+    modal.show();
+}
+
+//Handle Blog Post Update
+document.getElementById("edit-blog-form").addEventListener("submit", function (event) {
+    event.preventDefault();
+    
+    let postId = document.getElementById("edit-blog-id").value;
+    let updatedData = {
+        title: document.getElementById("edit-title").value,
+        outline: document.getElementById("edit-outline").value,
+        content: document.getElementById("edit-content").value
+    };
+
+    fetch(`/employers/update-blog-post/${postId}/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken()
+        },
+        body: JSON.stringify(updatedData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Blog post updated successfully!");
+            loadBlogPosts();
+
+            //Close the modal properly
+            let modalElement = document.getElementById("editBlogModal");
+            let modalInstance = bootstrap.Modal.getInstance(modalElement);
+            if (modalInstance) modalInstance.hide();
+        } else {
+            alert("Error updating post.");
+        }
+    });
+});
+
+
+//Delete Blog Post with Confirmation
+function confirmDelete(postId) {
+    if (confirm("Are you sure you want to delete this blog post?")) {
+        fetch(`/employers/delete-blog-post/${postId}/`, { method: "POST", headers: { "X-CSRFToken": getCSRFToken() } })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Blog post deleted.");
+                loadBlogPosts();
+            } else {
+                alert("Error deleting post.");
+            }
+        });
+    }
+}
+
+//Get CSRF Token
+function getCSRFToken() {
+    return document.querySelector("[name=csrfmiddlewaretoken]").value;
+}
+
+function loadJobPosts() {
+    fetch("/employers/job-posts/")
+        .then(response => response.json())
+        .then(data => {
+            let jobPostsBody = document.getElementById("job-posts-body");
+            jobPostsBody.innerHTML = "";
+            data.jobs.forEach(job => {
+                let row = `<tr data-id="${job.id}">
+				<td>
+                        <button class="btn btn-success" onclick="viewCandidates(${job.id}, '${job.skills}')" style="width:100%;">Candidates</button>
+						<button class="btn btn-warning" onclick="editJob(${job.id})" style="width:100%;">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteJob(${job.id})" style="width:100%;">Delete</button>
+                    </td>
+                    <td>${job.job_title}</td>
+                    <td>${job.location}</td>
+                    <td>${job.company}</td>
+                    <td>${job.employment_type}</td>
+                    <td>${job.experience_level}</td>
+                    <td>${job.reports_to}</td>
+                    <td>${job.salary_range}</td>
+                    <td>${job.application_deadline}</td>
+                    
+                </tr>`;
+                jobPostsBody.innerHTML += row;
+            });
+        });
+}
+
+function editJob(jobId) {
+    fetch(`/employers/job-posts/`)
+        .then(response => response.json())
+        .then(data => {
+            let job = data.jobs.find(j => j.id === jobId); //Find the job
+
+            if (job) {
+                //Populate modal fields correctly
+                document.getElementById("edit-job-id").value = job.id || "";
+                document.getElementById("edit-job-title").value = job.job_title || "";
+                document.getElementById("edit-job-location").value = job.location || "";
+                document.getElementById("edit-job-company").value = job.company || "";
+                document.getElementById("edit-job-employment-type").value = job.employment_type || "";
+                document.getElementById("edit-job-experience-level").value = job.experience_level || "";
+                document.getElementById("edit-job-reports-to").value = job.reports_to || "";
+                document.getElementById("edit-job-salary-range").value = job.salary_range || "";
+                document.getElementById("edit-job-application-deadline").value = job.application_deadline || "";
+                document.getElementById("edit-job-skills").value = job.skills || "";
+                document.getElementById("edit-job-details").value = job.details || ""; //Load into textarea
+
+                //Show modal properly
+                let editJobModal = new bootstrap.Modal(document.getElementById("editJobModal"));
+                editJobModal.show();
+            } else {
+                alert("Job not found!");
+            }
+        })
+        .catch(error => console.error("Error fetching job data:", error));
+}
+
+document.getElementById("edit-job-form").addEventListener("submit", function (event) {
+    event.preventDefault(); //Prevent page refresh
+
+    let jobId = document.getElementById("edit-job-id").value;
+
+    let updatedJob = {
+        job_title: document.getElementById("edit-job-title").value,
+        location: document.getElementById("edit-job-location").value,
+        company: document.getElementById("edit-job-company").value,
+        employment_type: document.getElementById("edit-job-employment-type").value,
+        experience_level: document.getElementById("edit-job-experience-level").value,
+        reports_to: document.getElementById("edit-job-reports-to").value,
+        salary_range: document.getElementById("edit-job-salary-range").value,
+        application_deadline: document.getElementById("edit-job-application-deadline").value,
+        skills: document.getElementById("edit-job-skills").value,
+        details: document.getElementById("edit-job-details").value,
+    };
+
+    fetch(`/employers/update-job/${jobId}/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken() //Ensure CSRF token is included
+        },
+        body: JSON.stringify(updatedJob)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Job updated successfully!");
+            let modal = bootstrap.Modal.getInstance(document.getElementById("editJobModal"));
+            modal.hide(); //Close modal after updating
+            loadJobPosts(); //Reload job list
+        } else {
+            alert("Error updating job: " + data.error);
+        }
+    })
+    .catch(error => console.error("Update error:", error));
+});
+
+document.getElementById("generate-blog-btn").addEventListener("click", function () {
+    let title = document.getElementById("blog-title").value.trim();
+    
+
+    fetch("/employers/generate-blog-post/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken()
+        },
+        body: JSON.stringify({ title: title })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.outline && data.content) {
+			if (!title) {
+				document.getElementById("blog-outline").value = data.outline;
+            document.getElementById("blog-content").value = data.content;
+            document.getElementById("blog-preview").innerHTML = marked.parse(data.content);
+			document.getElementById("blog-title").value = data.title;
+			}else{
+			document.getElementById("blog-outline").value = data.outline;
+            document.getElementById("blog-content").value = data.content;
+            document.getElementById("blog-preview").innerHTML = marked.parse(data.content);
+			
+			}
+            
+        } else {
+            alert("Error generating blog post.");
+        }
+    })
+    .catch(error => console.error("Fetch error:", error));
+});
+
+//Live Preview While Typing
+document.getElementById("blog-content").addEventListener("input", function () {
+    document.getElementById("blog-preview").innerHTML = marked.parse(this.value);
+});
+
+//Submit Blog Post
+document.getElementById("submit-blog-btn").addEventListener("click", function () {
+    let title = document.getElementById("blog-title").value.trim();
+    let outline = document.getElementById("blog-outline").value.trim();
+    let content = document.getElementById("blog-content").value.trim();
+
+    if (!title || !outline || !content) {
+        alert("Title, outline, and content cannot be empty.");
+        return;
+    }
+
+    fetch("/employers/submit-blog-post/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken()
+        },
+        body: JSON.stringify({ title: title, outline: outline, content: content })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Blog post saved successfully!");
+        } else {
+            alert("Error saving blog post: " + data.error);
+        }
+    })
+    .catch(error => console.error("Fetch error:", error));
+});
+
+//Function to Get CSRF Token from Cookies
+function getCSRFToken() {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+        let cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i].trim();
+            if (cookie.startsWith("csrftoken=")) {
+                cookieValue = cookie.substring("csrftoken=".length, cookie.length);
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
+
+function deleteJob(jobId) {
+    fetch(`/employers/delete-job/${jobId}/`, { method: "DELETE" })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) loadJobPosts();
+        });
+}
+
+
+async function findSuitableCandidates() {
+    const description = document.getElementById("job-description").value;
+
+    const response = await fetch("/employers/find-candidates/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ description }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+        alert("Error: " + (result.error || "Unknown error"));
+        return;
+    }
+
+    const candidates = result.shortlisted || [];
+
+    const table = document.getElementById("candidatesTable");
+    table.innerHTML = "";  // Clear existing rows
+
+    if (candidates.length === 0) {
+        table.innerHTML = "<tr><td colspan='4'>No suitable candidates found.</td></tr>";
+        return;
+    }
+
+    candidates.forEach(candidate => {
+        const row = `<tr>
+            <td><a href="/cprofile/${candidate.id}/" target="_blank">${candidate.name}</a></td>
+            <td>${candidate.skills}</td>
+            <td>${candidate.experience}</td>
+            <td><button class="shortlist-btn" data-candidate-id="${candidate.id}" data-candidate-name="${candidate.name}">Shortlist</button></td>
+        </tr>`;
+        table.innerHTML += row;
+    });
+}
+
+
+document.getElementById("candidatesTable").addEventListener("click", function (e) {
+    if (e.target && e.target.classList.contains("shortlist-btn")) {
+        const candidateId = e.target.getAttribute("data-candidate-id");
+        const candidateName = e.target.getAttribute("data-candidate-name");
+        const position = prompt(`Enter the position for which you want to shortlist ${candidateName}:`);
+        
+        if (position) {
+            fetch("/employers/shortlist-candidate/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCSRFToken(),  // Add your CSRF helper function here
+                },
+                body: JSON.stringify({ candidate_id: candidateId, position: position }),
+            })
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.success) {
+					
+                    alert("Candidate shortlisted successfully!");
+					
+					loadShortlistedCandidates();
+					
+                } else {
+                    alert("Error: " + data.error);
+                }
+            });
+        }
+		
+		
+    }
+});
+
+document.getElementById("candidatesModalBody").addEventListener("click", function (e) {
+    if (e.target && e.target.classList.contains("shortlist-btn")) {
+        const candidateId = e.target.getAttribute("data-candidate-id");
+        const candidateName = e.target.getAttribute("data-candidate-name");
+        const position = e.target.getAttribute("data-job-title");
+		 const positionid = e.target.getAttribute("data-job-id");
+        
+       
+            fetch("/employers/shortlist-candidate/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCSRFToken(),  // Add your CSRF helper function here
+                },
+                body: JSON.stringify({ candidate_id: candidateId, position: position, positionid: positionid }),
+            })
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.success) {
+                    alert("Candidate shortlisted successfully!");
+										
+					loadShortlistedCandidates();
+					
+                } else {
+                    alert("Error: " + data.error);
+                }
+            });
+        
+    }
+});
+
+
+function viewCandidates(jobId, jobSkills) {
+  // Show the modal manually
+  const modal = document.getElementById('candidatesModal');
+  const modalBody = document.getElementById('candidatesModalBody');
+
+  // Show loading indicator
+  modalBody.innerHTML = `
+    <div class="text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>`;
+
+  // Display the modal (vanilla JS method using Bootstrap 5+ API)
+  let bootstrapModal = new bootstrap.Modal(modal);
+  bootstrapModal.show();
+
+  // Fetch modal content from Django
+  fetch(`/employers/job-candidates/${jobId}/`)
+    .then(response => {
+      if (!response.ok) throw new Error("Network error");
+      return response.text();
+    })
+    .then(html => {
+      modalBody.innerHTML = html;
+    })
+    .catch(err => {
+      modalBody.innerHTML = `<div class="alert alert-danger">Error loading candidates.</div>`;
+      console.error(err);
+    });
+}
+
+// Function to load shortlisted candidates
+function loadShortlistedCandidates() {
+    fetch('/employers/get-shortlisted-candidates/')
+        .then(response => response.json())
+        .then(data => {
+            const candidates = data.candidates;
+            const candidatesList = document.getElementById("shortlistedCandidatesList");
+            candidatesList.innerHTML = ""; // Clear previous list
+            
+            if (candidates.length === 0) {
+                candidatesList.innerHTML = "<p>No shortlisted candidates found.</p>";
+            } else {
+                candidates.forEach(candidate => {
+                    const listItem = document.createElement("li");
+                    listItem.classList.add("list-group-item");
+                    listItem.innerHTML = `
+                        <strong>${candidate.name}</strong><br>
+                        <span>Skills: ${candidate.skills}</span><br>
+                        <span>Address: ${candidate.address}</span><br>
+						<span>Short listing Position: ${candidate.position}</span><br>
+                        `;
+					const btn = document.createElement('button');
+					btn.className = 'btn btn-primary btn-sm';
+					btn.textContent = 'Add to Email/Contracts List';
+					btn.onclick = () => addToEmailList(candidate);
+					listItem.appendChild(btn);
+                    candidatesList.appendChild(listItem);
+                });
+            }
+        })
+        .catch(error => console.error("Error fetching shortlisted candidates:", error));
+}
+
+
+
+
+
+
+let emailList = [];
+
+function addToEmailList(candidate) {
+  console.log("Adding candidate:", candidate);  
+  console.log("Current emailList:", emailList); 
+  
+  if (candidate.position_id === undefined || candidate.position_id === null) {
+    const offered_position = prompt(`Enter the Position Offered for ${candidate.name}:`);
+    candidate.position_id = 0;
+    candidate.position = offered_position;
+}
+
+  if (!emailList.find(c => c.email === candidate.email && c.position === candidate.position)) {
+    emailList.push(candidate);
+    renderEmailList();
+}
+}
+
+function renderEmailList() {
+  const container = document.getElementById('emailList');
+  container.innerHTML = '';
+  emailList.forEach(c => {
+    const li = document.createElement('li');
+    li.className = 'list-group-item';
+    li.innerHTML = `<strong>${c.name}</strong> - ${c.email} for ${c.position}`;
+    container.appendChild(li);
+  });
+}
+
+document.getElementById('searchInput').addEventListener('input', function () {
+  const query = this.value;
+  if (query.length < 2) return;
+
+  fetch(`/employers/search-candidates/?q=${encodeURIComponent(query)}`)
+    .then(res => res.json())
+    .then(data => {
+      const resultBox = document.getElementById('searchResults');
+      resultBox.innerHTML = '';
+      data.forEach(c => {
+        const item = document.createElement('a');
+        item.className = 'list-group-item list-group-item-action';
+        item.innerHTML = `<strong>${c.name}</strong><br>Skills: ${c.skills}<br>Address: ${c.address}`;
+        item.onclick = () => addToEmailList(c);
+        resultBox.appendChild(item);
+      });
+    });
+});
+
+
+
+async function generateEmail() {
+const container = document.getElementById('emailList');
+const prompt = document.getElementById('emailPrompt').value;
+  if (!prompt || emailList.length === 0) {
+    alert("Please enter a prompt and select candidates.");
+    return;
+  }
+
+  try {
+    const response = await fetch('/employers/generate-email/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt: prompt,
+        candidates: container,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to generate email');
+    }
+
+    const data = await response.json();
+    document.getElementById('emailSubject').value = data.subject;
+    document.getElementById('emailBody').value = data.body;
+	document.getElementById('emailPreview').innerHTML = marked.parse(data.body);
+  } catch (err) {
+    alert("Error: " + err.message);
+  }
+     
+    
+}
+
+document.getElementById("emailBody").addEventListener("input", function () {
+    const markdown = this.value;
+    const html = marked.parse(markdown); // Convert markdown to HTML
+    document.getElementById("emailPreview").innerHTML = html;
+});
+
+
+function fillPlaceholders(text, candidate) {
+    // Use regex to find all placeholders like [Company Address]
+    const matches = [...new Set(text.match(/\[([^\]]+)\]/g))]; // Unique placeholders
+
+    if (!matches) return text;
+
+    matches.forEach(placeholder => {
+        const key = placeholder.slice(1, -1); // Remove [ and ]
+
+        // Construct a dynamic message
+        const promptMsg = `Please enter the ${key} for ${candidate.name}`;
+
+        // Get user input
+        const value = prompt(promptMsg);
+
+        if (value !== null) {
+            // Replace ALL occurrences of this placeholder with the value
+            const regex = new RegExp(`\\[${key}\\]`, 'g');
+            text = text.replace(regex, value);
+        }
+    });
+
+    return text;
+}
+
+function generateContracts() {
+    const bodyTemplate = document.getElementById("emailPreview").innerHTML;
+
+    if (!bodyTemplate || emailList.length === 0) {
+        alert("Please write the contract content and select candidates.");
+        return;
+    }
+
+    const enrichedCandidates = emailList.map(candidate => {
+        let personalizedBody = bodyTemplate
+            .replace("[Candidate's Name]", candidate.name)
+            .replace("[Candidate's Email]", candidate.email)
+            .replace("[Candidate's Skills]", candidate.skills)
+            .replace("[Candidate's Address]", candidate.address)
+            .replace("[Position Title]", candidate.position)
+            .replace("[Job Title]", candidate.position);
+
+        // Get missing details dynamically
+        if (candidate.position_id > 0) {
+            personalizedBody = personalizedBody
+                .replace("[location]", candidate.location)
+                .replace("[reports_to]", candidate.reports_to)
+                .replace("[employment_type]", candidate.employment_type);
+
+            const salary = prompt(`Enter the offered salary for ${candidate.name} for the post of ${candidate.position}, Salary Range: ${candidate.salary_range}:`);
+            personalizedBody = personalizedBody.replace("[salary]", salary);
+        } else {
+            const location = prompt(`Enter the location for ${candidate.name} for the post of ${candidate.position}:`);
+            personalizedBody = personalizedBody.replace("[location]", location);
+
+            const reports_to = prompt(`Enter the Name of Reporting Officer for ${candidate.name} for the post of ${candidate.position}:`);
+            personalizedBody = personalizedBody.replace("[reports_to]", reports_to);
+
+            const employment_type = prompt(`Enter the Employment Type for ${candidate.name} for the post of ${candidate.position}:`);
+            personalizedBody = personalizedBody.replace("[employment_type]", employment_type);
+
+            const salary = prompt(`Enter the offered salary for ${candidate.name} for the post of ${candidate.position}, Salary Range: ${candidate.salary_range}:`);
+            personalizedBody = personalizedBody.replace("[salary]", salary);
+        }
+		
+		personalizedBody = fillPlaceholders(personalizedBody, candidate);
+
+        return {
+            name: candidate.name,
+            email: candidate.email,
+            position: candidate.position,
+            personalized_text: personalizedBody
+        };
+    });
+
+    fetch("/employers/generate-contracts/", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie('csrftoken'),
+    },
+    body: JSON.stringify({
+        candidates: enrichedCandidates  // enrichedCandidates must include `text`
+    }),
+})
+.then(response => response.json())
+.then(data => {
+    if (data.status === "success") {
+        alert("Contracts generated successfully!");
+        const linksContainer = document.getElementById("contract-links");
+        linksContainer.innerHTML = "";
+        data.files.forEach(file => {
+            const link = document.createElement("a");
+            link.href = file;
+            link.download = file.split('/').pop();
+            link.textContent = `Download ${link.download}`;
+            linksContainer.appendChild(link);
+            linksContainer.appendChild(document.createElement("br"));
+        });
+    } else {
+        alert("Failed to generate contracts: " + data.message);
+    }
+})
+.catch(error => {
+    console.error("Error:", error);
+    alert("An error occurred while generating contracts.");
+});
+}
+
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
+function sendEmails() {
+  const subject = document.getElementById("emailSubject").value;
+  const body = document.getElementById("emailPreview").innerHTML;
+
+  // Replace placeholders with actual candidate details
+    emailList.forEach(candidate => {
+        let personalizedBody = body
+            .replace("[Candidate's Name]", candidate.name)
+            .replace("[Candidate's Email]", candidate.email)
+            .replace("[Candidate's Skills]", candidate.skills)
+            .replace("[Candidate's Address]", candidate.address)
+			.replace("[Position Title]", candidate.position)
+			.replace("[Job Title]]", candidate.position);
+			
+		let personalizedSubject = subject
+            .replace("[Candidate's Name]", candidate.name)
+            .replace("[Candidate's Email]", candidate.email)
+            .replace("[Candidate's Skills]", candidate.skills)
+            .replace("[Candidate's Address]", candidate.address)
+			.replace("[Position Title]", candidate.position)
+			.replace("[Job Title]]", candidate.position);
+			
+		if(candidate.position_id > 0) {
+			personalizedBody = personalizedBody
+            .replace("[location]", candidate.location)
+            .replace("[reports_to]", candidate.reports_to)
+            .replace("[employment_type]", candidate.employment_type);
+			
+		const salary = prompt(`Enter the offered salary for ${candidate.name} offered for the post of ${candidate.position}, Salary Range: ${candidate.salary_range}:`);
+			personalizedBody = personalizedBody
+            .replace("[salary]", salary);
+		
+		} else {
+		const location = prompt(`Enter the location for ${candidate.name} for the post of ${candidate.position}:`);
+			personalizedBody = personalizedBody
+            .replace("[location]", location);
+			
+		const reports_to = prompt(`Enter the Name of Reporting Officer for ${candidate.name} for the post of ${candidate.position}:`);
+			personalizedBody = personalizedBody
+            .replace("[reports_to]", reports_to);
+			
+		const employment_type = prompt(`Enter the Employment Type for ${candidate.name} for the post of ${candidate.position}:`);
+			personalizedBody = personalizedBody
+            .replace("[employment_type]", employment_type);
+			
+		const salary = prompt(`Enter the offered salary for ${candidate.name} offered for the post of ${candidate.position}, Salary Range: ${candidate.salary_range}:`);
+			personalizedBody = personalizedBody
+            .replace("[salary]", salary);
+		
+		}
+			
+
+        // Send the email using AJAX or another method
+        fetch('/employers/send-emails/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: candidate.email,
+                subject: personalizedSubject,
+                body: personalizedBody,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                console.log("Email sent to " + candidate.email);
+            } else {
+                console.error("Failed to send email to " + candidate.email);
+            }
+        })
+        .catch(error => console.error('Error sending email:', error));
+    });
+}
+
+function getCSRFToken() {
+  return document.cookie.split('; ')
+    .find(row => row.startsWith('csrftoken='))
+    .split('=')[1];
+}
+
+// Call the function when the page loads to display shortlisted candidates
+document.addEventListener("DOMContentLoaded", function() {
+    loadShortlistedCandidates();
+});
+	
+	</script>
+	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js" 
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" 
+        crossorigin="anonymous"></script>
+
+</body>
+</html>

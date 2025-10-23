@@ -1,0 +1,57 @@
+<h5 class="mb-3">Candidates Who Attempted Test</h5>
+<ul class="list-group mb-4">
+  {% for c in test_candidates %}
+  <li class="list-group-item bg-light border-primary shadow-sm mb-2">
+    <h6 class="mb-1 text-primary"><a href="/cprofile/{{ c.id }}/" target="_blank">{{ c.name }}</a></h6>
+    <p class="mb-1"><strong>Skills:</strong><br>
+     {% for skill in c.skills %}
+	
+	<span class="badge bg-{{ skill.badge }} me-2 skill-badge" data-skill="{{ skill.skill }}">{{ skill.skill }} ({{ skill.score }}%)</span>
+	{% endfor %}
+    </p>
+    <p class="mb-1"><strong>Experience:</strong></p>
+    <ul class="small">
+      {% for exp in c.experiences %}
+        <li>📌 <strong>{{ exp.position }}</strong> at {{ exp.company }} <span class="text-muted">({{ exp.startDate }} - {{ exp.endDate }})</span></li>
+      {% endfor %}
+    </ul>
+    <p class="mt-2"><strong>Marks:</strong> <span class="text-success">{{ c.percentage }}%</span></p>
+	<button class="shortlist-btn" data-candidate-id="{{ c.id }}" data-candidate-name="{{ c.name }}" data-job-id="{{ c.job_id }}" data-job-title="{{ c.job_title }}">Shortlist</button></td>
+  </li>
+  {% empty %}
+  <li class="list-group-item text-muted">No test candidates found.</li>
+  {% endfor %}
+</ul>
+
+<h5 class="mb-3">Most Relevant Candidates (by Skills)</h5>
+<ul class="list-group">
+  {% for c in relevant_candidates %}
+  <li class="list-group-item bg-light border-success shadow-sm mb-2">
+    <h6 class="mb-1 text-success"><a href="/cprofile/{{ c.id }}/" target="_blank">{{ c.name }}</a></h6>
+    <p class="mb-1"><strong>Skills:</strong><br>
+     {% for skill in c.skills %}
+	<span class="badge bg-{{ skill.badge }} me-2 skill-badge" data-skill="{{ skill.skill }}">{{ skill.skill }} ({{ skill.score }}%)</span>
+	{% endfor %}
+    </p>
+    <p class="mb-1"><strong>Experience:</strong></p>
+    <ul class="small">
+      {% for exp in c.experiences %}
+        <li>📌 <strong>{{ exp.position }}</strong> at {{ exp.company }} <span class="text-muted">({{ exp.startDate }} - {{ exp.endDate }})</span></li>
+      {% endfor %}
+	</ul><p class="mb-1"><strong>Education:</strong></p>
+    <ul class="small">
+      {% for edu in c.educations %}
+        <li>📌 <strong>{{ edu.degree }}</strong> from {{ edu.institution }} with {{ edu.grade }} in {{ edu.date }} majors {{ edu.subjects }}</li>
+      {% endfor %}
+    </ul><strong>Matched Skills: </strong><br/>
+		{% for skill in c.matched_skills %}
+	<span class="badge bg-{{ skill.badge }} me-2 skill-badge" data-skill="{{ skill.skill }}">{{ skill.skill }} ({{ skill.score }}%)</span>
+	{% endfor %}
+    <p class="mt-2"><strong>Avg Skill Test Marks (%):</strong> <span class="text-success">{{ c.percentage }}% in {{ c.match_count }} matched skills</span></p>
+
+	<button class="shortlist-btn" data-candidate-id="{{ c.id }}" data-candidate-name="{{ c.name }}" data-job-id="{{ c.job_id }}" data-job-title="{{ c.job_title }}">Shortlist</button>
+  </li>
+  {% empty %}
+  <li class="list-group-item text-muted">No relevant candidates found.</li>
+  {% endfor %}
+</ul>
