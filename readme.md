@@ -1,4 +1,5 @@
 The Jobs Club and AI Recruitment & staffing Web Application will revolutionize the recruitment industry/HR departments by using the AI-powered tools to create a user-friendly platform. In this system the staffing agency operations are streamlined. These operations include employer, candidate, tests, postings and order management. It also manages the placements, automated content generation, tests, test results management, automated email generation, and contracts generation that are exported to word format. The efficiency of the system is enhanced by using GPT models from OpenAI while ensuring compliance with agency policies. The system provide unparalleled support for employers, candidates and administrators. This Web Application have a deep integration with OpenAI’s GPT models. 
+
 Tools:
 Python, Django, CSS, HTML, JQuery, AJAX
 
